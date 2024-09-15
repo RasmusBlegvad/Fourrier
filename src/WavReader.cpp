@@ -67,6 +67,70 @@ std::unordered_map<std::string, long long> WavReader::create_lookup(const std::s
    return chunkLookup;
 }
 
+float WavReader::BytesToFloat(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
+{
+   float result = 0.0f;
+
+   if (format == PCM)
+   {
+
+      switch (bytes_per_sample)
+      {
+      case 1:
+      {
+         // converting 8 bit unsigned to signed
+         int8_t pcm_8_value = static_cast<int8_t>(bytes[0]) - 128;
+         result = static_cast<float>(pcm_8_value);
+
+         break;
+      }
+
+      case 2:
+      {
+         int16_t pcm_16_value = *reinterpret_cast<const int16_t *>(bytes);
+         result = static_cast<float>(pcm_16_value);
+
+         break;
+      }
+
+      case 3:
+      {
+         int32_t pcm_24_value = (static_cast<int32_t>(bytes[2]) << 16) | (static_cast<int32_t>(bytes[1]) << 8) | (static_cast<int32_t>(bytes[0]));
+         if (pcm_24_value & 0x800000)
+         {
+            pcm_24_value |= 0xFF000000;
+         }
+
+         result = static_cast<float>(pcm_24_value);
+
+         break;
+      }
+      case 4:
+      {
+         int32_t pcm_32_value = *reinterpret_cast<const int32_t *>(bytes);
+
+         result = static_cast<float>(pcm_32_value);
+
+         break;
+      }
+
+      default:
+         throw std::runtime_error("Unsupported PCM LOL");
+         break;
+      }
+   }
+   else if (format == FLOAT)
+   {
+      result = *reinterpret_cast<const float *>(bytes);
+   }
+   else
+   {
+      throw std::runtime_error("Unsupported compression format");
+   }
+
+   return result;
+}
+
 WavReader::Signal WavReader::wav_reader(const std::string &file_path)
 {
 
@@ -95,9 +159,9 @@ WavReader::Signal WavReader::wav_reader(const std::string &file_path)
 
    uint16_t bytes_per_sample = bits_per_sample / 8;
 
-   // std::cout << "\nformat: [" << format_code << "]\nnumber of channels: [" << num_ch << "]\nsample rate: ["
-   //           << sample_rate << "]\nbits per sample: [" << bits_per_sample << "]\n"
-   //           << "bytes per sample: [" << bytes_per_sample << "]\n";
+   std::cout << "\nformat: [" << format_code << "]\nnumber of channels: [" << num_ch << "]\nsample rate: ["
+             << sample_rate << "]\nbits per sample: [" << bits_per_sample << "]\n"
+             << "bytes per sample: [" << bytes_per_sample << "]\n";
 
    // jump to data chunk and skip to chunk_size
    file.seekg(look_up.at("data") + 4);
@@ -112,7 +176,7 @@ WavReader::Signal WavReader::wav_reader(const std::string &file_path)
    std::vector<float> samples(size);
 
    float norm_fact = 1.0f / (std::pow(2, bits_per_sample - 1) - 1);
-   if (format_code == 3)
+   if (format_code == FLOAT)
    {
       norm_fact = 1;
    }
@@ -123,13 +187,11 @@ WavReader::Signal WavReader::wav_reader(const std::string &file_path)
 
       int offset = i * bytes_per_sample * num_ch;
 
-      std::span<const std::byte> sampleBytes(data.data() + offset, bytes_per_sample);
+      std::span<std::byte> sampleBytes(data.data() + offset, bytes_per_sample);
 
-      // FIXME:
-      // IMPLEMENT BYTES TO FLOAT
-      // samples[i] = BytesToFloat(sampleBytes.data(), format_code) * norm_fact;
+      samples[i] = BytesToFloat(sampleBytes.data(), format_code, bytes_per_sample) * norm_fact;
    }
    file.close();
 
-   return {};
+   return {.samples = samples, .samplerate = sample_rate};
 }
