@@ -7,9 +7,9 @@
 
 int main()
 {
-    WavReader r;
+    Wav wav;
 
-    auto signal = r.wav_reader("audio5.wav");
+    auto signal = wav.extract_signal("audio5.wav");
 
     std::cout << "sample rate: " << signal.samplerate << "\n";
 

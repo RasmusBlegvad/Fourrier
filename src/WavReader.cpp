@@ -4,11 +4,11 @@
 #include <iostream>
 #include <cmath>
 
-WavReader::WavReader() = default;
+Wav::Wav() = default;
 
-WavReader::~WavReader() = default;
+Wav::~Wav() = default;
 
-std::unordered_map<std::string, long long> WavReader::create_lookup(const std::string &file_path)
+std::unordered_map<std::string, long long> Wav::create_lookup(const std::string &file_path)
 {
    // Open the WAV file in binary mode
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -67,7 +67,7 @@ std::unordered_map<std::string, long long> WavReader::create_lookup(const std::s
    return chunkLookup;
 }
 
-float WavReader::BytesToFloat(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
+float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
 {
    float result = 0.0f;
 
@@ -131,7 +131,7 @@ float WavReader::BytesToFloat(const std::byte *bytes, uint16_t format, uint16_t 
    return result;
 }
 
-WavReader::Signal WavReader::wav_reader(const std::string &file_path)
+Wav::Signal Wav::extract_signal(const std::string &file_path)
 {
 
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -189,7 +189,7 @@ WavReader::Signal WavReader::wav_reader(const std::string &file_path)
 
       std::span<std::byte> sampleBytes(data.data() + offset, bytes_per_sample);
 
-      samples[i] = BytesToFloat(sampleBytes.data(), format_code, bytes_per_sample) * norm_fact;
+      samples[i] = bytes_to_float(sampleBytes.data(), format_code, bytes_per_sample) * norm_fact;
    }
    file.close();
 
