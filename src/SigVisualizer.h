@@ -1,12 +1,21 @@
-
+#pragma once
+#include "Wav.h"
+#include <cstdint>
+#include <vector>
 
 class SigVisualizer
 {
 private:
-    /* data */
 public:
     SigVisualizer() = default;
     ~SigVisualizer() = default;
 
-    void plot_signal();
+    struct Screen
+    {
+        int HEIGHT;
+        int WIDTH;
+        int H_PADDING;
+    };
+
+    void plot_signal(const Wav::Signal &signal, const struct Screen &screen);
 };

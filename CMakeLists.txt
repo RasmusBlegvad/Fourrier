@@ -7,8 +7,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-enum-compare")
 
 # Add the executable with source files
 add_executable(FV src/main.cpp
-                 src/WavReader.cpp
-                 src/WavReader.h)
+                 src/Wav.cpp
+                 src/Wav.h
+                 src/SigVisualizer.cpp
+                 src/SigVisualizer.h)
 
 # Set the paths for Raylib include and lib directories
 set(RAYLIB_INCLUDE "${CMAKE_SOURCE_DIR}/libs/raylib/include")

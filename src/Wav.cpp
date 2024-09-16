@@ -1,5 +1,5 @@
-#include "WavReader.h"
 
+#include "Wav.h"
 #include <fstream>
 #include <iostream>
 #include <cmath>
