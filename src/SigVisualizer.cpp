@@ -20,9 +20,8 @@ void SigVisualizer::plot_signal(const Wav::Signal &sig, const struct Screen &scr
 
         y_pos = std::max(y_pos, 1.0f);
 
-        Vector2 start_pos = Vector2{.x = static_cast<float>(i), .y = (screen.HEIGHT / 2) - (y_pos)};
-        Vector2 end_pos = Vector2{.x = static_cast<float>(i), .y = (screen.HEIGHT / 2) + (y_pos)};
+        Vector2 start_pos = Vector2{.x = static_cast<float>(i), .y = (screen.HEIGHT / 2) - y_pos};
+        Vector2 end_pos = Vector2{.x = static_cast<float>(i), .y = (screen.HEIGHT / 2) + y_pos};
         DrawLineEx(start_pos, end_pos, 1, RED);
-        DrawText(TextFormat("%i", sig.samplerate), screen.WIDTH / 4, screen.HEIGHT / 4, 30, WHITE);
     }
 }
