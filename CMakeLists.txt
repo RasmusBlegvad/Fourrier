@@ -3,14 +3,13 @@ project(FourierVisualizer CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-enum-compare")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wno-enum-compare")
 
 # Add the executable with source files
 add_executable(FV src/main.cpp
-                 src/Wav.cpp
-                 src/Wav.h
-                 src/SigVisualizer.cpp
-                 src/SigVisualizer.h)
+                  src/Wav.cpp
+                  src/SigVisualizer.cpp
+                  src/Sigproccesing.cpp)
 
 # Set the paths for Raylib include and lib directories
 set(RAYLIB_INCLUDE "${CMAKE_SOURCE_DIR}/libs/raylib/include")

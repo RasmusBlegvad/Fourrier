@@ -5,16 +5,8 @@
 #include <cmath>
 #include <span>
 
-Wav::Wav() = default;
-
-Wav::~Wav() = default;
-
 std::unordered_map<std::string, long long> Wav::create_lookup(const std::string &file_path)
 {
-   // Open the WAV file in binary mode
-   // hello
-   // another comment
-   // sdfuahhsliudfh
 
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
    if (!file)
@@ -72,9 +64,9 @@ std::unordered_map<std::string, long long> Wav::create_lookup(const std::string 
    return chunkLookup;
 }
 
-float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
+float Wav::bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
 {
-   float result = 0.0f;
+   double result = 0.0;
 
    if (format == PCM)
    {
@@ -85,7 +77,7 @@ float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t byte
       {
          // converting 8 bit unsigned to signed
          int8_t pcm_8_value = static_cast<int8_t>(bytes[0]) - 128;
-         result = static_cast<float>(pcm_8_value);
+         result = static_cast<double>(pcm_8_value);
 
          break;
       }
@@ -93,7 +85,7 @@ float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t byte
       case 2:
       {
          int16_t pcm_16_value = *reinterpret_cast<const int16_t *>(bytes);
-         result = static_cast<float>(pcm_16_value);
+         result = static_cast<double>(pcm_16_value);
 
          break;
       }
@@ -106,7 +98,7 @@ float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t byte
             pcm_24_value |= 0xFF000000;
          }
 
-         result = static_cast<float>(pcm_24_value);
+         result = static_cast<double>(pcm_24_value);
 
          break;
       }
@@ -114,7 +106,7 @@ float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t byte
       {
          int32_t pcm_32_value = *reinterpret_cast<const int32_t *>(bytes);
 
-         result = static_cast<float>(pcm_32_value);
+         result = static_cast<double>(pcm_32_value);
 
          break;
       }
@@ -126,7 +118,7 @@ float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t byte
    }
    else if (format == FLOAT)
    {
-      result = *reinterpret_cast<const float *>(bytes);
+      result = *reinterpret_cast<const double *>(bytes);
    }
    else
    {
@@ -136,7 +128,7 @@ float Wav::bytes_to_float(const std::byte *bytes, uint16_t format, uint16_t byte
    return result;
 }
 
-Wav::Signal Wav::extract_signal(const std::string &file_path)
+SigProccesing::t_signal Wav::extract_signal(const std::string &file_path)
 {
 
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -176,11 +168,11 @@ Wav::Signal Wav::extract_signal(const std::string &file_path)
    std::vector<std::byte> data(num_of_bytes);
    file.read(reinterpret_cast<char *>(data.data()), num_of_bytes);
 
-   // converting raw bytes to floats
-   int size = num_of_bytes / (bytes_per_sample * num_ch);
-   std::vector<float> samples(size);
+   // converting raw bytes to double
+   int const size = num_of_bytes / (bytes_per_sample * num_ch);
+   std::vector<double> samples(size);
 
-   float norm_fact = 1.0f / (std::pow(2, bits_per_sample - 1) - 1);
+   double norm_fact = 1.0 / (std::pow(2, bits_per_sample - 1) - 1);
    if (format_code == FLOAT)
    {
       norm_fact = 1;
@@ -190,11 +182,11 @@ Wav::Signal Wav::extract_signal(const std::string &file_path)
 
    {
 
-      int offset = i * bytes_per_sample * num_ch;
+      int const offset = i * bytes_per_sample * num_ch;
 
       std::span<std::byte> sampleBytes(data.data() + offset, bytes_per_sample);
 
-      samples[i] = bytes_to_float(sampleBytes.data(), format_code, bytes_per_sample) * norm_fact;
+      samples[i] = bytes_to_double(sampleBytes.data(), format_code, bytes_per_sample) * norm_fact;
    }
    file.close();
 

@@ -7,44 +7,44 @@
 #include <format>
 
 Color MY_BACKGROUND_COLOR = GetColor(0x181818FF);
-std::string file = "audio3.wav";
+std::string file = "100.wav";
 bool plot = true;
 
 int main()
 {
     Wav wav;
+    SigProccesing sp;
     SigVisualizer vis;
     SigVisualizer::Screen screen = {8 * 120, 8 * 230, 50, 50};
 
     // Extract signal from the WAV file
-    auto sig = wav.extract_signal(file);
+    auto const sig_raw = wav.extract_signal(file);
+    auto const f_sig = sp.DFT(sig_raw);
 
-    const float sig_time = sig.samples.size() / static_cast<float>(sig.samplerate);
+    for (auto val : f_sig.magnitudes)
+    {
+        std::cout << val << "\n";
+    }
+
 
     InitWindow(screen.WIDTH, screen.HEIGHT, "Fourier");
+
+    // 1 = top monitor nice fror testing
+    SetWindowMonitor(1);
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
         ClearBackground(MY_BACKGROUND_COLOR);
-
-        // Y-axis
-        DrawLine(50, 50, 50, screen.HEIGHT - 50, WHITE);
-        // X-axis
-        DrawLine(50, screen.HEIGHT - 50, screen.WIDTH - 50, screen.HEIGHT - 50, WHITE);
-        // Y axis-label
-        DrawText("A", 20, 50, 30, WHITE);
-        // X axis-label
-        DrawText("t", screen.WIDTH - 72, screen.HEIGHT - 43, 30, WHITE);
-
-        if (GuiButton((Rectangle){(screen.WIDTH - 5) - 100, 5, 100, 40}, "Plot"))
+        // vis.plot_axis(screen);
+        if (GuiButton((Rectangle){static_cast<float>(screen.WIDTH - 5 - 100), 5, 100, 40}, "Plot"))
         {
             plot = !plot;
         }
 
         if (plot)
         {
-            vis.plot_signal(sig, screen);
+            vis.plot_signal(f_sig, screen);
         }
 
         EndDrawing();

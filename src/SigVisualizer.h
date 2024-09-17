@@ -18,5 +18,9 @@ public:
         int W_PADDING;
     };
 
-    void plot_signal(const Wav::Signal &signal, const struct Screen &screen);
+
+    void plot_signal(const SigProccesing::t_signal &signal, const struct Screen &screen);
+    void plot_signal(const SigProccesing::f_signal &signal, const struct Screen &screen);
+
+    void plot_axis(const struct Screen &screen);
 };
