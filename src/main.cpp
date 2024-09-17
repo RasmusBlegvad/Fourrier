@@ -8,13 +8,13 @@
 
 Color MY_BACKGROUND_COLOR = GetColor(0x181818FF);
 std::string file = "audio3.wav";
-bool plot = false;
+bool plot = true;
 
 int main()
 {
     Wav wav;
     SigVisualizer vis;
-    SigVisualizer::Screen screen = {16 * 60, 16 * 90, 50, 50};
+    SigVisualizer::Screen screen = {8 * 120, 8 * 230, 50, 50};
 
     // Extract signal from the WAV file
     auto sig = wav.extract_signal(file);
@@ -37,7 +37,7 @@ int main()
         // X axis-label
         DrawText("t", screen.WIDTH - 72, screen.HEIGHT - 43, 30, WHITE);
 
-        if (GuiButton((Rectangle){0, 0, 100, 40}, "Plot"))
+        if (GuiButton((Rectangle){(screen.WIDTH - 5) - 100, 5, 100, 40}, "Plot"))
         {
             plot = !plot;
         }

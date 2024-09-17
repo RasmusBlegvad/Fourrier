@@ -15,7 +15,7 @@ public:
         int HEIGHT;
         int WIDTH;
         int H_PADDING;
-        int V_PADDing;
+        int W_PADDING;
     };
 
     void plot_signal(const Wav::Signal &signal, const struct Screen &screen);
