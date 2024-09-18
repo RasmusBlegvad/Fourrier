@@ -5,12 +5,8 @@
 #include <unordered_map>
 #include <cstdint>
 
-class Wav
+namespace  Wav
 {
-
-public:
-   Wav() = default;
-   ~Wav() = default;
 
    std::unordered_map<std::string, long long> create_lookup(const std::string &file_path);
 
@@ -22,5 +18,5 @@ public:
       FLOAT = 3,
    };
 
-   float bytes_to_double(const std::byte *bytes, uint16_t format_code, uint16_t bytes_per_sample);
+   double bytes_to_double(const std::byte *bytes, uint16_t format_code, uint16_t bytes_per_sample);
 };

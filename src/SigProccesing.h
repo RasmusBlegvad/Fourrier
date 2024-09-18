@@ -4,14 +4,8 @@
 #include <cstdint>
 #include <complex>
 
-class SigProccesing
+namespace  SigProccesing
 {
-private:
-
-public:
-    SigProccesing() = default;
-    ~SigProccesing() = default;
-
     struct t_signal
     {
         std::vector<double> samples;
@@ -27,4 +21,6 @@ public:
     };
 
     f_signal DFT(const t_signal &sig);
+
+    t_signal generate_sine(double frequency, double duration, uint32_t samplerate, double phase = 0);
 };

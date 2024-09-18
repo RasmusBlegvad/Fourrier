@@ -4,11 +4,30 @@
 #include <iostream>
 #include <numbers>
 
-using namespace std::complex_literals;
+namespace SigProccesing{
+
+t_signal generate_sine(const double frequency, const double duration, const uint32_t samplerate, const double phase)
+{
+    const double num_samples = duration * samplerate;
+    std::vector<double> sin_sample;
+
+    for (int i = 0; i < num_samples; ++i)
+    {
+        double time = static_cast<double>(i) / samplerate;
+        double sig_sample = std::sin(2.0 * M_PI * frequency * time + phase);
+        sin_sample.push_back(sig_sample);
+        std::cout << sig_sample << "\n";
+    }
+
+    return {.samples = sin_sample, .samplerate = samplerate};
+}
+
+
 
 // TODO: LOOK INTO FDFT THIS IS SLOW AS FUCK!!!
-SigProccesing::f_signal SigProccesing::DFT(const SigProccesing::t_signal &sig)
+f_signal DFT(const SigProccesing::t_signal &sig)
 {
+using namespace std::complex_literals;
     std::complex<double> sum;
     double const N = sig.samples.size();
     double constexpr pi = std::numbers::pi;
@@ -33,4 +52,6 @@ SigProccesing::f_signal SigProccesing::DFT(const SigProccesing::t_signal &sig)
     }
     std::cout << "done";
     return {.samples = dft_samples, .magnitudes = dft_magnitudes , .samplerate = sig.samplerate}; // return the dft
+}
+
 }

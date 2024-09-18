@@ -5,7 +5,12 @@
 #include <cmath>
 #include <span>
 
-std::unordered_map<std::string, long long> Wav::create_lookup(const std::string &file_path)
+namespace Wav
+{
+
+
+
+std::unordered_map<std::string, long long> create_lookup(const std::string &file_path)
 {
 
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -64,7 +69,7 @@ std::unordered_map<std::string, long long> Wav::create_lookup(const std::string 
    return chunkLookup;
 }
 
-float Wav::bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
+double bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
 {
    double result = 0.0;
 
@@ -128,7 +133,7 @@ float Wav::bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t byt
    return result;
 }
 
-SigProccesing::t_signal Wav::extract_signal(const std::string &file_path)
+SigProccesing::t_signal extract_signal(const std::string &file_path)
 {
 
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -191,4 +196,6 @@ SigProccesing::t_signal Wav::extract_signal(const std::string &file_path)
    file.close();
 
    return {.samples = samples, .samplerate = sample_rate};
+}
+
 }
