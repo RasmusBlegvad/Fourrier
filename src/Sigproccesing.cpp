@@ -6,6 +6,7 @@
 
 using namespace std::complex_literals;
 
+// TODO: LOOK INTO FDFT THIS IS SLOW AS FUCK!!!
 SigProccesing::f_signal SigProccesing::DFT(const SigProccesing::t_signal &sig)
 {
     std::complex<double> sum;
