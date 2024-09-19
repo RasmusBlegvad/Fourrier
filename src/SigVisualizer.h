@@ -2,7 +2,7 @@
 #include "Wav.h"
 
 
-namespace  SigVisualizer
+namespace SigVisualizer
 {
     struct Screen
     {
@@ -19,8 +19,9 @@ namespace  SigVisualizer
     };
 
 
-    void plot_signal(const SigProccesing::t_signal &signal, const struct Screen &screen,plot_types plot_type);
-    void plot_signal(const SigProccesing::f_signal &signal, const struct Screen &screen);
+    void plot_signal(const SigProccesing::t_signal& signal, const struct Screen& screen, plot_types plot_type);
+    void plot_signal(const SigProccesing::f_signal& signal, const struct Screen& screen);
 
-    void plot_axis_t_sig(const struct Screen &screen,const SigProccesing::t_signal &sig);
+    void plot_axis_t_sig(const struct Screen& screen, const SigProccesing::t_signal& sig);
+    void plot_axis_f_sig(const struct Screen& screen, const SigProccesing::f_signal& sig);
 };

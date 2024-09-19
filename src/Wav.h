@@ -5,12 +5,11 @@
 #include <unordered_map>
 #include <cstdint>
 
-namespace  Wav
+namespace Wav
 {
+   std::unordered_map<std::string, long long> create_lookup(const std::string& file_path);
 
-   std::unordered_map<std::string, long long> create_lookup(const std::string &file_path);
-
-   SigProccesing::t_signal extract_signal(const std::string &file_path);
+   SigProccesing::t_signal extract_signal(const std::string& file_path);
 
    enum compression_formats
    {
@@ -18,5 +17,5 @@ namespace  Wav
       FLOAT = 3,
    };
 
-   double bytes_to_double(const std::byte *bytes, uint16_t format_code, uint16_t bytes_per_sample);
+   double bytes_to_double(const std::byte* bytes, uint16_t format_code, uint16_t bytes_per_sample);
 };
