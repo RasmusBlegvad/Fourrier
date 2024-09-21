@@ -10,6 +10,8 @@ add_executable(FV src/main.cpp
         src/Wav.cpp
         src/SigVisualizer.cpp
         src/Sigproccesing.cpp
+        src/App.cpp
+        src/App.h
 )
 
 # Set the paths for Raylib include and lib directories

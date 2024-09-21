@@ -5,14 +5,15 @@
 #include <cmath>
 #include <span>
 
-namespace Wav
+// constructor
+Wav::Wav(std::string file_name)
+   : m_signal(extract_signal(file_name))
 {
+   ;
+}
 
-
-
-std::unordered_map<std::string, long long> create_lookup(const std::string &file_path)
+std::unordered_map<std::string, long long> Wav::create_lookup(const std::string& file_path)
 {
-
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
    if (!file)
    {
@@ -46,7 +47,6 @@ std::unordered_map<std::string, long long> create_lookup(const std::string &file
 
    while (file.tellg() < fileSize)
    {
-
       // get the chunk offset in bytes
       const long long chunkOffset = file.tellg();
 
@@ -60,7 +60,7 @@ std::unordered_map<std::string, long long> create_lookup(const std::string &file
 
       // skip to next chunk
       int chunkSize;
-      file.read(reinterpret_cast<char *>(&chunkSize), 4);
+      file.read(reinterpret_cast<char*>(&chunkSize), 4);
       file.seekg(chunkSize, std::ios::cur);
    }
 
@@ -69,52 +69,52 @@ std::unordered_map<std::string, long long> create_lookup(const std::string &file
    return chunkLookup;
 }
 
-double bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t bytes_per_sample)
+double Wav::bytes_to_double(const std::byte* bytes, uint16_t format, uint16_t bytes_per_sample)
 {
    double result = 0.0;
 
    if (format == PCM)
    {
-
       switch (bytes_per_sample)
       {
       case 1:
-      {
-         // converting 8 bit unsigned to signed
-         int8_t pcm_8_value = static_cast<int8_t>(bytes[0]) - 128;
-         result = static_cast<double>(pcm_8_value);
-
-         break;
-      }
-
-      case 2:
-      {
-         int16_t pcm_16_value = *reinterpret_cast<const int16_t *>(bytes);
-         result = static_cast<double>(pcm_16_value);
-
-         break;
-      }
-
-      case 3:
-      {
-         int32_t pcm_24_value = (static_cast<int32_t>(bytes[2]) << 16) | (static_cast<int32_t>(bytes[1]) << 8) | (static_cast<int32_t>(bytes[0]));
-         if (pcm_24_value & 0x800000)
          {
-            pcm_24_value |= 0xFF000000;
+            // converting 8 bit unsigned to signed
+            int8_t pcm_8_value = static_cast<int8_t>(bytes[0]) - 128;
+            result = static_cast<double>(pcm_8_value);
+
+            break;
          }
 
-         result = static_cast<double>(pcm_24_value);
+      case 2:
+         {
+            int16_t pcm_16_value = *reinterpret_cast<const int16_t*>(bytes);
+            result = static_cast<double>(pcm_16_value);
 
-         break;
-      }
+            break;
+         }
+
+      case 3:
+         {
+            int32_t pcm_24_value = (static_cast<int32_t>(bytes[2]) << 16) | (static_cast<int32_t>(bytes[1]) << 8) | (
+               static_cast<int32_t>(bytes[0]));
+            if (pcm_24_value & 0x800000)
+            {
+               pcm_24_value |= 0xFF000000;
+            }
+
+            result = static_cast<double>(pcm_24_value);
+
+            break;
+         }
       case 4:
-      {
-         int32_t pcm_32_value = *reinterpret_cast<const int32_t *>(bytes);
+         {
+            int32_t pcm_32_value = *reinterpret_cast<const int32_t*>(bytes);
 
-         result = static_cast<double>(pcm_32_value);
+            result = static_cast<double>(pcm_32_value);
 
-         break;
-      }
+            break;
+         }
 
       default:
          throw std::runtime_error("Unsupported PCM LOL");
@@ -123,7 +123,7 @@ double bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t bytes_p
    }
    else if (format == FLOAT)
    {
-      result = *reinterpret_cast<const double *>(bytes);
+      result = *reinterpret_cast<const double*>(bytes);
    }
    else
    {
@@ -133,45 +133,45 @@ double bytes_to_double(const std::byte *bytes, uint16_t format, uint16_t bytes_p
    return result;
 }
 
-SigProccesing::t_signal extract_signal(const std::string &file_path)
-{
 
+Wav::Signal Wav::extract_signal(const std::string& file_path)
+{
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
    if (!file)
    {
       std::cerr << "Error: Could not open file" << std::endl;
-      return {};
+      return {std::vector<double>{}, 0};
    }
 
    const auto look_up = create_lookup(file_path);
    file.seekg(look_up.at("fmt ") + 8);
 
    uint16_t format_code;
-   file.read(reinterpret_cast<char *>(&format_code), 2);
+   file.read(reinterpret_cast<char*>(&format_code), 2);
 
    uint16_t num_ch;
-   file.read(reinterpret_cast<char *>(&num_ch), 2);
+   file.read(reinterpret_cast<char*>(&num_ch), 2);
 
    uint32_t sample_rate;
-   file.read(reinterpret_cast<char *>(&sample_rate), 4);
+   file.read(reinterpret_cast<char*>(&sample_rate), 4);
 
    uint16_t bits_per_sample;
    file.seekg(6, std::ios::cur);
-   file.read(reinterpret_cast<char *>(&bits_per_sample), 2);
+   file.read(reinterpret_cast<char*>(&bits_per_sample), 2);
 
    uint16_t bytes_per_sample = bits_per_sample / 8;
 
    std::cout << "\nformat: [" << format_code << "]\nnumber of channels: [" << num_ch << "]\nsample rate: ["
-             << sample_rate << "]\nbits per sample: [" << bits_per_sample << "]\n"
-             << "bytes per sample: [" << bytes_per_sample << "]\n";
+      << sample_rate << "]\nbits per sample: [" << bits_per_sample << "]\n"
+      << "bytes per sample: [" << bytes_per_sample << "]\n";
 
    // jump to data chunk and skip to chunk_size
    file.seekg(look_up.at("data") + 4);
    int num_of_bytes;
-   file.read(reinterpret_cast<char *>(&num_of_bytes), 4);
+   file.read(reinterpret_cast<char*>(&num_of_bytes), 4);
 
    std::vector<std::byte> data(num_of_bytes);
-   file.read(reinterpret_cast<char *>(data.data()), num_of_bytes);
+   file.read(reinterpret_cast<char*>(data.data()), num_of_bytes);
 
    // converting raw bytes to double
    int const size = num_of_bytes / (bytes_per_sample * num_ch);
@@ -186,7 +186,6 @@ SigProccesing::t_signal extract_signal(const std::string &file_path)
    for (int i = 0; i < samples.size(); i++)
 
    {
-
       int const offset = i * bytes_per_sample * num_ch;
 
       std::span<std::byte> sampleBytes(data.data() + offset, bytes_per_sample);
@@ -195,7 +194,12 @@ SigProccesing::t_signal extract_signal(const std::string &file_path)
    }
    file.close();
 
-   return {.samples = samples, .samplerate = sample_rate};
+   return {samples, sample_rate};
 }
 
+Wav::Signal Wav::get_signal()
+{
+   return m_signal;
 }
+
+
