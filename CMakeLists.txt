@@ -3,12 +3,11 @@ project(FourierVisualizer CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O4 -Wno-enum-compare")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wno-enum-compare")
 
 # Add the executable with source files
 add_executable(FV src/main.cpp
         src/Wav.cpp
-        src/SigVisualizer.cpp
         src/Sigproccesing.cpp
         src/App.cpp
         src/App.h

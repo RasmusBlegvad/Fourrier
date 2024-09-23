@@ -2,31 +2,36 @@
 
 #include <raylib.h>
 #include "Wav.h"
-#include "SigVisualizer.h"
 
 class App
 {
 public:
     struct Screen
     {
-        int width;
-        int height;
+        float width;
+        float height;
         int fps;
-        int w_padding;
-        int h_padding;
+        float w_padding;
+        float h_padding;
 
-        explicit Screen(int w = 8 * 230, int h = 8 * 150, int h_pad = 50, int w_pad = 50, int fps = 60);
+        explicit Screen(int w = 8.0f * 230.0f, int h = 8.0f * 150.0f, int h_pad = 50.0f, int w_pad = 50.0f,
+                        int fps = 60);
     };
 
-    explicit App(const Screen& screen = Screen{}, const char* title = "Fourrie", Color bgColor = GetColor(0x101010FF));
+    explicit App(const Screen& screen = Screen{}, const char* title = "Fourrie", Color bgColor = GetColor(0x181818FF),
+                 Color border_color = GetColor(0x505050FF));
 
     void game_loop();
+    void render_borders();
 
 private:
     Color m_default_bg_color;
+    Color m_default_border_color;
     Screen m_screen;
     Wav m_wav;
 
     void render();
+
+    void event_handler();
     void cleanup();
 };
