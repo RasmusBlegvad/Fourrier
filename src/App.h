@@ -22,6 +22,7 @@ public:
                  Color border_color = GetColor(0x505050FF));
 
     void game_loop();
+    void render_axis();
     void render_borders();
 
 private:
@@ -29,6 +30,11 @@ private:
     Color m_default_border_color;
     Screen m_screen;
     Wav m_wav;
+
+    Rectangle m_file_sig_rect;
+    Rectangle m_comp_sig_rect;
+    Rectangle m_part_sig_rect;
+
 
     void render();
 

@@ -8,7 +8,7 @@
 class Wav
 {
 public:
-   Wav(std::string file_name);
+   explicit Wav(std::string file_name);
 
    struct Signal
    {

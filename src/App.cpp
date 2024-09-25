@@ -12,7 +12,21 @@ App::App(const Screen& screen, const char* title, Color bgColor, Color border_co
     : m_default_bg_color(bgColor),
       m_screen(screen),
       m_wav("audio7.wav"),
-      m_default_border_color(border_color)
+      m_default_border_color(border_color),
+      m_file_sig_rect( {
+        .x = m_screen.w_padding, .y = m_screen.h_padding, .width = m_screen.h_padding * 8,
+        .height = m_screen.h_padding * 14
+      }),
+      m_comp_sig_rect(
+    {
+        .x = m_file_sig_rect.x + m_file_sig_rect.width + m_screen.h_padding, .y = m_screen.h_padding,
+        .width = (m_screen.width - m_screen.w_padding * 2.0f) - (m_file_sig_rect.width + m_screen.w_padding),
+        .height = m_file_sig_rect.height
+      }),
+      m_part_sig_rect({
+        .x = m_screen.w_padding, .y = (m_screen.height / 2.0f) + m_screen.h_padding * 4.0f,
+        .width = m_screen.width - m_screen.w_padding * 2.0f, .height = 350.0f
+      })
 
 {
     InitWindow(m_screen.width, m_screen.height, title);
@@ -36,9 +50,10 @@ void App::game_loop()
     cleanup();
 }
 
-
 void App::render_borders()
 {
+
+    //TODO: REFACTOR X AND Y VALUES INTO MEMBER VARIABLES (a lot faster maybe ???)
     //files overview rect
     const Rectangle files_rect =
     {
@@ -56,8 +71,8 @@ void App::render_borders()
         .width = (m_screen.width - m_screen.w_padding * 2.0f) - (files_rect.width + m_screen.w_padding),
         .height = files_rect.height
     };
-    DrawRectangleLinesEx(comp_sig_rect, 3, m_default_border_color);
-    DrawText("comp signal", comp_sig_rect.width / 2 + comp_sig_rect.x, comp_sig_rect.height / 2 + m_screen.h_padding,
+    DrawRectangleLinesEx(m_comp_sig_rect, 3, m_default_border_color);
+    DrawText("comp signal", m_comp_sig_rect.width / 2 + m_comp_sig_rect.x, m_comp_sig_rect.height / 2 + m_screen.h_padding,
              20, WHITE);
 
     // partial signals rectø
@@ -82,10 +97,20 @@ void App::render_borders()
     DrawLineEx(devider_start_pos, devider_end_pos, 3, m_default_border_color);
 }
 
+void App::render_axis()
+{
+    // comp signal axis
+
+
+    // part signal axis
+
+}
+
 // here we render gui stuff that does not change i think
 void App::render()
 {
     ClearBackground(m_default_bg_color);
+    render_axis();
     render_borders();
 }
 
