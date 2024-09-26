@@ -3,9 +3,10 @@
 #include <raygui.h>
 #include <iostream>
 
-App::Screen::Screen(int w, int h, int h_pad, int w_pad, int fps)
-    : width(w), height(h), h_padding(h_pad), w_padding(w_pad), fps(fps)
+App::Screen::Screen(int w, int h, int fps)
+    : width(w), height(h), h_padding(h * 0.02f), w_padding(w * 0.02f), fps(fps)
 {
+    std::cout << h_padding << "\n" << w_padding;
 }
 
 App::App(const Screen& screen, const char* title, Color bgColor, Color border_color)
@@ -13,19 +14,19 @@ App::App(const Screen& screen, const char* title, Color bgColor, Color border_co
       m_screen(screen),
       m_wav("audio7.wav"),
       m_default_border_color(border_color),
-      m_file_sig_rect( {
-        .x = m_screen.w_padding, .y = m_screen.h_padding, .width = m_screen.h_padding * 8,
-        .height = m_screen.h_padding * 14
+      m_fs_rect( {
+        .x = m_screen.w_padding, .y = m_screen.h_padding, .width = m_screen.width / 6,
+        .height = m_screen.height / 2 + (2 * screen.w_padding)
       }),
       m_comp_sig_rect(
     {
-        .x = m_file_sig_rect.x + m_file_sig_rect.width + m_screen.h_padding, .y = m_screen.h_padding,
-        .width = (m_screen.width - m_screen.w_padding * 2.0f) - (m_file_sig_rect.width + m_screen.w_padding),
-        .height = m_file_sig_rect.height
+        .x = m_fs_rect.x + m_fs_rect.width + m_screen.w_padding, .y = m_screen.h_padding,
+        .width = (m_screen.width - m_screen.w_padding * 2) - (m_fs_rect.width + m_screen.w_padding),
+        .height = m_fs_rect.height
       }),
       m_part_sig_rect({
-        .x = m_screen.w_padding, .y = (m_screen.height / 2.0f) + m_screen.h_padding * 4.0f,
-        .width = m_screen.width - m_screen.w_padding * 2.0f, .height = 350.0f
+        .x = m_screen.w_padding, .y = m_fs_rect.height + m_screen.h_padding * 2,
+        .width = m_screen.width - m_screen.w_padding * 2.0f, .height = m_screen.height - (3 * m_screen.h_padding + m_fs_rect.height)
       })
 
 {
@@ -55,43 +56,28 @@ void App::render_borders()
 
     //TODO: REFACTOR X AND Y VALUES INTO MEMBER VARIABLES (a lot faster maybe ???)
     //files overview rect
-    const Rectangle files_rect =
-    {
-        .x = m_screen.w_padding, .y = m_screen.h_padding, .width = m_screen.h_padding * 8,
-        .height = m_screen.h_padding * 14
-    };
-    DrawRectangleLinesEx(files_rect, 3, m_default_border_color);
-    DrawText("files", files_rect.width / 2 + files_rect.x, files_rect.height / 2 + files_rect.y,
+    DrawRectangleLinesEx(m_fs_rect, 3, m_default_border_color);
+    DrawText("files", m_fs_rect.width / 2 + m_fs_rect.x, m_fs_rect.height / 2 + m_fs_rect.y,
              20, WHITE);
 
     // composite signal rect
-    const Rectangle comp_sig_rect =
-    {
-        .x = files_rect.x + files_rect.width + m_screen.h_padding, .y = m_screen.h_padding,
-        .width = (m_screen.width - m_screen.w_padding * 2.0f) - (files_rect.width + m_screen.w_padding),
-        .height = files_rect.height
-    };
+
     DrawRectangleLinesEx(m_comp_sig_rect, 3, m_default_border_color);
     DrawText("comp signal", m_comp_sig_rect.width / 2 + m_comp_sig_rect.x, m_comp_sig_rect.height / 2 + m_screen.h_padding,
              20, WHITE);
 
     // partial signals rectø
-    const Rectangle part_sig_rect =
-    {
-        .x = m_screen.w_padding, .y = (m_screen.height / 2.0f) + m_screen.h_padding * 4.0f,
-        .width = m_screen.width - m_screen.w_padding * 2.0f, .height = 350.0f
-    };
-    DrawRectangleLinesEx(part_sig_rect, 3, m_default_border_color);
-    DrawText("part signal", part_sig_rect.width / 2 + part_sig_rect.x, part_sig_rect.height / 2 + part_sig_rect.y,
+    DrawRectangleLinesEx(m_part_sig_rect, 3, m_default_border_color);
+    DrawText("part signal", m_part_sig_rect.width / 2 + m_part_sig_rect.x, m_part_sig_rect.height / 2 + m_part_sig_rect.y,
              20, WHITE);
 
 
     // options devider
     Vector2 devider_start_pos = {
-        .x = part_sig_rect.x + m_screen.w_padding * 8, .y = (m_screen.height / 2.0f) + m_screen.h_padding * 4.0f
+        .x = m_part_sig_rect.x + m_fs_rect.width, .y = m_part_sig_rect.y
     };
     Vector2 devider_end_pos = {
-        .x = part_sig_rect.x + m_screen.w_padding * 8, .y = part_sig_rect.y + part_sig_rect.height,
+        .x = m_part_sig_rect.x + m_fs_rect.width, .y = m_part_sig_rect.y + m_part_sig_rect.height,
     };
 
     DrawLineEx(devider_start_pos, devider_end_pos, 3, m_default_border_color);

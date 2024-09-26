@@ -14,7 +14,7 @@ public:
         float w_padding;
         float h_padding;
 
-        explicit Screen(int w = 8.0f * 230.0f, int h = 8.0f * 150.0f, int h_pad = 50.0f, int w_pad = 50.0f,
+        explicit Screen(int w = 8.0f * 200.0f, int h = 8.0f * 120.0f,
                         int fps = 60);
     };
 
@@ -31,7 +31,7 @@ private:
     Screen m_screen;
     Wav m_wav;
 
-    Rectangle m_file_sig_rect;
+    Rectangle m_fs_rect;
     Rectangle m_comp_sig_rect;
     Rectangle m_part_sig_rect;
 
