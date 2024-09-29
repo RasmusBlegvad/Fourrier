@@ -1,5 +1,5 @@
 #pragma once
-
+#include <filesystem>
 #include <raylib.h>
 #include "Wav.h"
 
@@ -30,13 +30,20 @@ private:
    Rectangle m_fs_rect;
    Rectangle m_comp_sig_rect;
    Rectangle m_part_sig_rect;
+   Vector2 m_devider_start_pos;
+   Vector2 m_devider_end_pos;
 
+   // maybe this should be in a file manager class at somepoint so that we can have functions for deleting, renaming, moving and dropping files into the
+   // program from the ui but as of now i am only testing whether i can even get the program to show me what files i have)
+   std::vector<std::filesystem::directory_entry> m_files;
 
    void game_loop();
    void render_axis();
    void render_borders();
    void render();
-   void event_handler();
    void cleanup();
+   void event_handler();
+   void update_audio_files();
+   void render_audio_file_names();
    void update_screen_size();
 };
