@@ -27,6 +27,7 @@ private:
    Screen m_screen;
    Wav m_wav;
 
+   // UI ELEMTS
    Rectangle m_fs_rect;
    Rectangle m_comp_sig_rect;
    Rectangle m_part_sig_rect;
@@ -43,7 +44,7 @@ private:
    void render();
    void cleanup();
    void event_handler();
-   void update_audio_files();
+   void load_audio_files();
    void render_audio_file_names();
    void update_screen_size();
 };

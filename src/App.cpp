@@ -44,11 +44,16 @@ App::App(const Screen& screen, const char* title, Color bgColor, Color border_co
 
 
 {
+   m_files.reserve(9);
+   load_audio_files();
+   for (auto file : m_files)
+   {
+      std::cout << file.path().filename().generic_string() << "\n";
+   }
    InitWindow(m_screen.width, m_screen.height, title);
    SetTargetFPS(m_screen.fps);
    SetWindowMonitor(1);
    SetWindowState(FLAG_WINDOW_RESIZABLE);
-   update_audio_files();
    game_loop();
 }
 
@@ -58,8 +63,7 @@ void App::game_loop()
    while (!WindowShouldClose())
    {
       BeginDrawing();
-      update_audio_files();
-
+      // load_audio_files();
       update_screen_size();
       render();
 
@@ -158,10 +162,8 @@ void App::update_screen_size()
    }
 }
 
-void App::update_audio_files()
+void App::load_audio_files()
 {
-   m_files.clear();
-
    for (const auto& file : std::filesystem::directory_iterator("../audio files"))
    {
       m_files.push_back(file);
@@ -170,9 +172,14 @@ void App::update_audio_files()
 
 void App::render_audio_file_names()
 {
-   for (const auto& file : m_files)
+   int filename_spacing = m_fs_rect.height / 9;
+
+   for (int i = 0; i < m_files.size(); ++i)
    {
-      std::cout << "file name: " << file.path().filename().generic_string() << "\n";
+      int spacing = i * filename_spacing;
+      const char* filename = m_files[i].path().filename().generic_string().c_str();
+      DrawText(filename, m_fs_rect.x + m_fs_rect.width / 4, (m_fs_rect.y + m_fs_rect.height / 8) + spacing, 15,
+               WHITE);
    }
 }
 
