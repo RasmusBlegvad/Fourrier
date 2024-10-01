@@ -2,7 +2,10 @@
 #include <fstream>
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
-#include <iostream>
+
+
+// TODO LIST:
+
 
 App::Screen::Screen(int w, int h, int fps)
    : width(w), height(h), h_padding(h * 0.01f), w_padding(w * 0.01f), fps(fps)
@@ -63,7 +66,7 @@ void App::game_loop()
       BeginDrawing();
       update_screen_size();
       render();
-      is_mouse_over_filename(mouse_pos);
+      is_filename_pressed(mouse_pos);
       event_handler();
 
       EndDrawing();
@@ -193,19 +196,31 @@ void App::render_audio_file_names()
    }
 }
 
-void App::is_mouse_over_filename(const Vector2& mouse_pos)
+std::tuple<bool, std::string> App::is_mouse_over_filename(const Vector2& mouse_pos)
 {
    for (int i = 0; i < m_files.size(); ++i)
    {
-      const char* filename = m_files[i].path().filename().generic_string().c_str();
-      Vector2 text_size = MeasureTextEx(GetFontDefault(), filename, 20, 1);
+      // Store the filename in a string (safer than using c_str() directly)
+      std::string filename = m_files[i].path().filename().generic_string();
+      Vector2 text_size = MeasureTextEx(GetFontDefault(), filename.c_str(), 20, 1);
       Rectangle text_bounding_box = {m_file_name_pos[i].x, m_file_name_pos[i].y, text_size.x, text_size.y};
+
       if (CheckCollisionPointRec(mouse_pos, text_bounding_box))
       {
-         DrawText(filename, m_file_name_pos[i].x, m_file_name_pos[i].y, 20, GREEN);
+         DrawText(filename.c_str(), m_file_name_pos[i].x, m_file_name_pos[i].y, 20, GREEN);
+         return std::make_tuple(true, filename);
       }
    }
+   return std::make_tuple(false, "");
 }
 
+void App::is_filename_pressed(const Vector2& mouse_pos)
+{
+   auto [is_mouse_over, filename] = is_mouse_over_filename(mouse_pos);
 
+   if (is_mouse_over && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+   {
+      m_wav.set_signal(m_wav.extract_signal(filename));
+   }
+}
 

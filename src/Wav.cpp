@@ -197,9 +197,20 @@ Wav::Signal Wav::extract_signal(const std::string& file_path)
    return {samples, sample_rate};
 }
 
-Wav::Signal Wav::get_signal()
+Wav::Signal Wav::get_signal() const
 {
    return m_signal;
 }
+
+void Wav::set_signal(const Signal& sig)
+{
+   m_signal = sig;
+}
+
+void Wav::print() const
+{
+   std::cout << m_signal.samples.size();
+}
+
 
 

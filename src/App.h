@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <raylib.h>
+#include <tuple>
 #include "Wav.h"
 
 class App
@@ -49,5 +50,6 @@ private:
    void load_audio_files();
    void render_audio_file_names();
    void update_screen_size();
-   void is_mouse_over_filename(const Vector2& mouse_pos);
+   std::tuple<bool, std::string> is_mouse_over_filename(const Vector2& mouse_pos);
+   void is_filename_pressed(const Vector2& mouse_pos);
 };
