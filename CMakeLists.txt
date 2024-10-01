@@ -11,6 +11,10 @@ add_executable(FV src/main.cpp
         src/Sigproccesing.cpp
         src/App.cpp
         src/App.h
+        src/FileManager.cpp
+        src/FileManager.h
+        src/UI.cpp
+        src/UI.h
 )
 
 # Set the paths for Raylib include and lib directories
