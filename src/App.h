@@ -27,6 +27,7 @@ private:
    Screen m_screen;
    Wav m_wav;
 
+   // TODO: Refactor into UI class
    // UI ELEMTS
    Rectangle m_fs_rect;
    Rectangle m_comp_sig_rect;
@@ -37,6 +38,7 @@ private:
    // maybe this should be in a file manager class at somepoint so that we can have functions for deleting, renaming, moving and dropping files into the
    // program from the ui but as of now i am only testing whether i can even get the program to show me what files i have)
    std::vector<std::filesystem::directory_entry> m_files;
+   std::vector<Vector3> m_file_name_pos;
 
    void game_loop();
    void render_axis();
@@ -47,4 +49,5 @@ private:
    void load_audio_files();
    void render_audio_file_names();
    void update_screen_size();
+   void is_mouse_over_filename(const Vector2& mouse_pos);
 };

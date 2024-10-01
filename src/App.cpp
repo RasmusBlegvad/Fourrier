@@ -12,6 +12,7 @@ App::Screen::Screen(int w, int h, int fps)
 App::App(const Screen& screen, const char* title, Color bgColor, Color border_color)
    : m_default_bg_color(bgColor),
      m_screen(screen),
+     // TODO: hmm det her wav fis er lidt sus fix det
      m_wav("audio7.wav"),
      m_default_border_color(border_color),
      m_fs_rect({
@@ -46,10 +47,6 @@ App::App(const Screen& screen, const char* title, Color bgColor, Color border_co
 {
    m_files.reserve(9);
    load_audio_files();
-   for (auto file : m_files)
-   {
-      std::cout << file.path().filename().generic_string() << "\n";
-   }
    InitWindow(m_screen.width, m_screen.height, title);
    SetTargetFPS(m_screen.fps);
    SetWindowMonitor(1);
@@ -62,10 +59,12 @@ void App::game_loop()
 {
    while (!WindowShouldClose())
    {
+      Vector2 mouse_pos = GetMousePosition();
       BeginDrawing();
-      // load_audio_files();
       update_screen_size();
       render();
+      is_mouse_over_filename(mouse_pos);
+      event_handler();
 
       EndDrawing();
    }
@@ -102,9 +101,17 @@ void App::render()
    render_audio_file_names();
 }
 
-void event_handler()
+void App::event_handler()
 {
-   // TODO: implement ty
+   // TODO: Refactor into UI class
+   if (GuiButton({
+                    .x = m_fs_rect.x + m_fs_rect.width - m_screen.w_padding, .y = m_fs_rect.y + m_screen.h_padding,
+                    .width = m_screen.h_padding, .height = m_screen.h_padding
+                 }, "R"))
+   {
+      m_files.clear();
+      load_audio_files();
+   }
 }
 
 void App::cleanup()
@@ -172,15 +179,33 @@ void App::load_audio_files()
 
 void App::render_audio_file_names()
 {
-   int filename_spacing = m_fs_rect.height / 9;
+   m_file_name_pos.clear();
+   int filename_spacing = m_fs_rect.height / m_files.size();
 
    for (int i = 0; i < m_files.size(); ++i)
    {
       int spacing = i * filename_spacing;
       const char* filename = m_files[i].path().filename().generic_string().c_str();
-      DrawText(filename, m_fs_rect.x + m_fs_rect.width / 4, (m_fs_rect.y + m_fs_rect.height / 8) + spacing, 15,
-               WHITE);
+      float x_pos = m_fs_rect.x + m_screen.h_padding;
+      float y_pos = (m_fs_rect.y + m_screen.h_padding) + spacing;
+      DrawText(filename, x_pos, y_pos, 20, WHITE);
+      m_file_name_pos.push_back(Vector3{.x = x_pos, .y = y_pos, .z = static_cast<float>(i)});
    }
 }
+
+void App::is_mouse_over_filename(const Vector2& mouse_pos)
+{
+   for (int i = 0; i < m_files.size(); ++i)
+   {
+      const char* filename = m_files[i].path().filename().generic_string().c_str();
+      Vector2 text_size = MeasureTextEx(GetFontDefault(), filename, 20, 1);
+      Rectangle text_bounding_box = {m_file_name_pos[i].x, m_file_name_pos[i].y, text_size.x, text_size.y};
+      if (CheckCollisionPointRec(mouse_pos, text_bounding_box))
+      {
+         DrawText(filename, m_file_name_pos[i].x, m_file_name_pos[i].y, 20, GREEN);
+      }
+   }
+}
+
 
 
