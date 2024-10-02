@@ -1,7 +1,6 @@
 #pragma once
 #include <raylib.h>
 #include <vector>
-#include <string>
 
 #include "FileManager.h"
 
@@ -25,22 +24,22 @@ public:
 
 
    //UI Setup functions_________________________________________________________________________________________________
-   void define_ui_rectangles(const Screen& screen);
+   void define_ui_rectangles();
    //___________________________________________________________________________________________________________________
 
 
    //DRAWING / RENDERING STUFF TO THE SCREEN____________________________________________________________________________
    void render_audio_file_names();
-   void render_borders();
-   void render();
+   void render_ui_areas();
    void render_axis();
    void update_screen_size();
+   void render();
 
    //___________________________________________________________________________________________________________________
 
    // USER INTERACTION__________________________________________________________________________________________________
-   std::tuple<bool, std::string> is_mouse_over_filename(const Vector2& mouse_pos);
-   void is_filename_pressed(const Vector2& mouse_pos);
+   void filename_pressed(const Vector2& mouse_pos);
+   void reload_file_names();
    void event_handler();
    //___________________________________________________________________________________________________________________
 
@@ -55,6 +54,8 @@ private:
    Rectangle part_sig_rect{};
    Vector2 devider_start_pos{};
    Vector2 devider_end_pos{};
+
+   Font font;
 
    std::vector<Vector3> file_name_pos;
 

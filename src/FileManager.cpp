@@ -1,4 +1,5 @@
 #include "FileManager.h"
+#include "iostream"
 
 
 FileManager::FileManager()
@@ -8,9 +9,15 @@ FileManager::FileManager()
 
 void FileManager::load_audio_files()
 {
+   files.clear();
    for (const auto& file : std::filesystem::directory_iterator("../audio files"))
    {
       files.push_back(file);
+   }
+
+   for (auto file : files)
+   {
+      std::cout << file.path().filename().generic_string() << "\n";
    }
 }
 

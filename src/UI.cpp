@@ -1,6 +1,7 @@
 #include "UI.h"
 #include <iostream>
-
+#define RAYGUI_IMPLEMENTATION
+#include <raygui.h>
 
 UI::Screen::Screen(int w, int h, int fps)
    : width(w), height(h), h_padding(h * 0.01f), w_padding(w * 0.01f), fps(fps)
@@ -8,13 +9,13 @@ UI::Screen::Screen(int w, int h, int fps)
 }
 
 UI::UI(const Screen& screen, Color bgColor, Color border_color)
-   : default_bg_color(bgColor), default_border_color(border_color), screen(screen), fm()
+   : default_bg_color(bgColor), default_border_color(border_color), screen(screen), fm() //, font(LoadFont())
 {
-   define_ui_rectangles(screen);
+   define_ui_rectangles();
 }
 
 //UI Setup functions
-void UI::define_ui_rectangles(const Screen& screen)
+void UI::define_ui_rectangles()
 {
    fs_rect = {
       .x = screen.w_padding,
@@ -48,7 +49,6 @@ void UI::define_ui_rectangles(const Screen& screen)
    };
 }
 
-
 void UI::render_audio_file_names()
 {
    file_name_pos.clear();
@@ -65,17 +65,19 @@ void UI::render_audio_file_names()
    }
 }
 
-
 //DRAWING / RENDERING STUFF TO THE SCREEN
-void UI::render_borders()
+void UI::render_ui_areas()
 {
    //files overview rect
+   // DrawRectangleRec(fs_rect, GetColor(0x303030FF));
    DrawRectangleLinesEx(fs_rect, 3, default_border_color);
 
    // composite signal rect
+   // DrawRectangleRec(comp_sig_rect, GetColor(0x303030FF));
    DrawRectangleLinesEx(comp_sig_rect, 3, default_border_color);
 
    // partial signals rect
+   // DrawRectangleRec(part_sig_rect, GetColor(0x303030FF));
    DrawRectangleLinesEx(part_sig_rect, 3, default_border_color);
 
    // options devider
@@ -92,57 +94,49 @@ void UI::update_screen_size()
       screen.h_padding = GetScreenHeight() * 0.01f;
       screen.w_padding = GetScreenWidth() * 0.01f;
 
-      // NEW UI RECTANGLES
-      // NOTE: h_padding is used for spacing rectangles both vertically and horisontally maybe fix later
-      Rectangle new_fs_rect = {
-         .x = screen.w_padding, .y = screen.h_padding, .width = screen.width / 6,
-         .height = screen.height / 2 + (2 * screen.w_padding)
-      };
-
-      Rectangle new_comp_sig_rect =
-      {
-         .x = screen.w_padding + screen.width / 6 + screen.h_padding, .y = screen.h_padding,
-         .width = (screen.width - screen.w_padding * 2) - (screen.width / 6 + screen.h_padding),
-         .height = screen.height / 2 + (2 * screen.w_padding)
-      };
-      Rectangle new_part_sig_rect = {
-         .x = screen.w_padding, .y = screen.height / 2 + (2 * screen.w_padding) + screen.h_padding * 2,
-         .width = screen.width - screen.w_padding * 2.0f,
-         .height = screen.height - (3 * screen.h_padding + screen.height / 2 + (2 * screen.w_padding))
-      };
-
-      //NEW OPTIONS DEVIDER VECTORS
-      Vector2 new_start_pos =
-      {
-         .x = new_part_sig_rect.x + new_fs_rect.width,
-         .y = new_part_sig_rect.y,
-      };
-
-      Vector2 new_end_pos =
-      {
-         .x = new_part_sig_rect.x + new_fs_rect.width,
-         .y = new_part_sig_rect.y + new_part_sig_rect.height,
-      };
-
-      fs_rect = new_fs_rect;
-      comp_sig_rect = new_comp_sig_rect;
-      part_sig_rect = new_part_sig_rect;
-      devider_start_pos = new_start_pos;
-      devider_end_pos = new_end_pos;
+      define_ui_rectangles();
    }
 }
 
-void UI::render()
+void UI::render_axis()
 {
-   update_screen_size();
-   render_borders();
-   render_audio_file_names();
+   DrawLineEx(Vector2{
+                 .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
+                 .y = fs_rect.y
+              },
+              Vector2{
+                 .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
+                 .y = fs_rect.y + fs_rect.height - screen.w_padding
+              },
+              3,
+              default_border_color
+   );
+
+   DrawLineEx(Vector2{
+                 .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
+                 .y = fs_rect.y + fs_rect.height - screen.w_padding
+              },
+              Vector2{
+                 .x = (screen.width - screen.w_padding),
+                 .y = fs_rect.y + fs_rect.height - screen.w_padding
+              },
+              3,
+              default_border_color
+   );
 }
 
 
-// USER INTERACTION
+void UI::render()
+{
+   ClearBackground(default_bg_color);
+   update_screen_size();
+   render_ui_areas();
+   //render_axis();
+   render_audio_file_names();
+}
 
-std::tuple<bool, std::string> UI::is_mouse_over_filename(const Vector2& mouse_pos)
+// USER INTERACTION:
+void UI::filename_pressed(const Vector2& mouse_pos)
 {
    for (int i = 0; i < fm.get_files().size(); ++i)
    {
@@ -154,32 +148,30 @@ std::tuple<bool, std::string> UI::is_mouse_over_filename(const Vector2& mouse_po
       if (CheckCollisionPointRec(mouse_pos, text_bounding_box))
       {
          DrawText(filename.c_str(), file_name_pos[i].x, file_name_pos[i].y, 20, GREEN);
-         return std::make_tuple(true, filename);
+
+         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+         {
+            std::cout << filename << "\n";
+         }
+         return; // Exit once the file is clicked
       }
    }
-   return std::make_tuple(false, "");
 }
 
-void UI::is_filename_pressed(const Vector2& mouse_pos)
+void UI::reload_file_names()
 {
-   auto [is_mouse_over, filename] = is_mouse_over_filename(mouse_pos);
-
-   if (is_mouse_over && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+   if (GuiButton(Rectangle{
+                    .x = fs_rect.x + fs_rect.width - screen.w_padding * 2, .y = fs_rect.y + screen.w_padding,
+                    .width = 20, .height = 20
+                 }, "R"))
    {
-      std::cout << filename << "\n";
+      fm.load_audio_files();
    }
 }
 
 void UI::event_handler()
 {
    Vector2 mouse_pos = GetMousePosition();
-   is_filename_pressed(mouse_pos);
+   filename_pressed(mouse_pos);
+   reload_file_names();
 }
-
-
-
-
-
-
-
-

@@ -1,7 +1,6 @@
 #include "App.h"
 #include <fstream>
-#define RAYGUI_IMPLEMENTATION
-#include <raygui.h>
+
 
 App::App(const char* title)
    : wav("audio7.wav"), ui()
@@ -16,9 +15,12 @@ App::App(const char* title)
 // Implement the game_loop function
 void App::game_loop()
 {
+   float sliderValue = 50.0f;
+
    while (!WindowShouldClose())
    {
       BeginDrawing();
+
       ui.render();
       ui.event_handler();
 

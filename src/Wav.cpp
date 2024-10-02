@@ -7,7 +7,7 @@
 
 // constructor
 Wav::Wav(std::string file_name)
-   : m_signal(extract_signal(file_name))
+   : current_loaded_signal(extract_signal(file_name))
 {
    ;
 }
@@ -133,7 +133,6 @@ double Wav::bytes_to_double(const std::byte* bytes, uint16_t format, uint16_t by
    return result;
 }
 
-
 Wav::Signal Wav::extract_signal(const std::string& file_path)
 {
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -197,19 +196,19 @@ Wav::Signal Wav::extract_signal(const std::string& file_path)
    return {samples, sample_rate};
 }
 
-Wav::Signal Wav::get_signal() const
+Wav::Signal& Wav::get_signal()
 {
-   return m_signal;
+   return current_loaded_signal;
 }
 
 void Wav::set_signal(const Signal& sig)
 {
-   m_signal = sig;
+   current_loaded_signal = sig;
 }
 
 void Wav::print() const
 {
-   std::cout << m_signal.samples.size();
+   std::cout << current_loaded_signal.samples.size();
 }
 
 

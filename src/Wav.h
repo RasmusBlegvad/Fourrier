@@ -48,10 +48,10 @@ public:
 
    Signal extract_signal(const std::string& file_path);
 
-   Signal get_signal() const;
+   Signal& get_signal();
    void set_signal(const Signal& sig);
    void print() const;
 
 private:
-   Signal m_signal;
+   Signal current_loaded_signal;
 };
