@@ -1,7 +1,6 @@
 #pragma once
-#include <raylib.h>
 #include <vector>
-
+#include "raylib.h"
 #include "FileManager.h"
 
 class UI
@@ -22,16 +21,15 @@ public:
    explicit UI(const Screen& screen = Screen{}, Color bgColor = GetColor(0x181818FF),
                Color border_color = GetColor(0x505050FF));
 
-
-   //UI Setup functions_________________________________________________________________________________________________
+   // UI Setup functions_________________________________________________________________________________________________
    void define_ui_rectangles();
+   void load_font(const std::string& file_name);
    //___________________________________________________________________________________________________________________
 
-
-   //DRAWING / RENDERING STUFF TO THE SCREEN____________________________________________________________________________
+   // DRAWING / RENDERING STUFF TO THE SCREEN____________________________________________________________________________
    void render_audio_file_names();
    void render_ui_areas();
-   void render_axis();
+   void render_axis() const;
    void update_screen_size();
    void render();
 
@@ -55,9 +53,11 @@ private:
    Vector2 devider_start_pos{};
    Vector2 devider_end_pos{};
 
-   Font font;
+   Font font{};
 
    std::vector<Vector3> file_name_pos;
 
    FileManager fm;
+
+   bool has_clicked;
 };

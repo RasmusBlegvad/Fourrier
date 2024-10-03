@@ -9,7 +9,7 @@
 Wav::Wav(std::string file_name)
    : current_loaded_signal(extract_signal(file_name))
 {
-   ;
+
 }
 
 std::unordered_map<std::string, long long> Wav::create_lookup(const std::string& file_path)
@@ -210,6 +210,3 @@ void Wav::print() const
 {
    std::cout << current_loaded_signal.samples.size();
 }
-
-
-

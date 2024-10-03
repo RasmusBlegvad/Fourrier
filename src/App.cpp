@@ -6,8 +6,9 @@ App::App(const char* title)
    : wav("audio7.wav"), ui()
 {
    InitWindow(ui.screen.width, ui.screen.height, title);
+   ui.load_font("jbMono.ttf");
    SetTargetFPS(ui.screen.fps);
-   SetWindowMonitor(1);
+   SetWindowMonitor(0);
    SetWindowState(FLAG_WINDOW_RESIZABLE);
    game_loop();
 }
@@ -20,8 +21,8 @@ void App::game_loop()
    while (!WindowShouldClose())
    {
       BeginDrawing();
-
       ui.render();
+      ui.event_handler();
       ui.event_handler();
 
       EndDrawing();

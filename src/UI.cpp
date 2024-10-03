@@ -9,33 +9,35 @@ UI::Screen::Screen(int w, int h, int fps)
 }
 
 UI::UI(const Screen& screen, Color bgColor, Color border_color)
-   : default_bg_color(bgColor), default_border_color(border_color), screen(screen), fm() //, font(LoadFont())
+   : screen(screen), default_bg_color(bgColor), default_border_color(border_color),
+     fm(), has_clicked(false)
+
 {
    define_ui_rectangles();
 }
 
-//UI Setup functions
+// UI Setup functions
 void UI::define_ui_rectangles()
 {
    fs_rect = {
       .x = screen.w_padding,
       .y = screen.h_padding,
       .width = screen.width / 6,
-      .height = screen.height / 2 + (2 * screen.w_padding)
+      .height = screen.height / 2 + 2 * screen.w_padding
    };
    comp_sig_rect =
    {
       .x = screen.w_padding + screen.width / 6 + screen.h_padding,
       .y = screen.h_padding,
-      .width = (screen.width - screen.w_padding * 2) - (screen.width / 6 + screen.h_padding),
-      .height = screen.height / 2 + (2 * screen.w_padding)
+      .width = screen.width - screen.w_padding * 2 - (screen.width / 6 + screen.h_padding),
+      .height = screen.height / 2 + 2 * screen.w_padding
    };
 
    part_sig_rect = {
       .x = screen.w_padding,
-      .y = screen.height / 2 + (2 * screen.w_padding) + screen.h_padding * 2,
+      .y = screen.height / 2 + 2 * screen.w_padding + screen.h_padding * 2,
       .width = screen.width - screen.w_padding * 2.0f,
-      .height = screen.height - (3 * screen.h_padding + screen.height / 2 + (2 * screen.w_padding))
+      .height = screen.height - (3 * screen.h_padding + screen.height / 2 + 2 * screen.w_padding)
    };
 
    devider_start_pos = {
@@ -49,6 +51,13 @@ void UI::define_ui_rectangles()
    };
 }
 
+void UI::load_font(const std::string& file_name)
+{
+   const std::string font_path = "../Fonts/" + file_name;
+   font = LoadFont(font_path.c_str());
+}
+
+
 void UI::render_audio_file_names()
 {
    file_name_pos.clear();
@@ -60,16 +69,16 @@ void UI::render_audio_file_names()
       const char* filename = fm.get_files()[i].path().filename().generic_string().c_str();
       float x_pos = fs_rect.x + screen.h_padding;
       float y_pos = (fs_rect.y + screen.h_padding) + spacing;
-      DrawText(filename, x_pos, y_pos, 20, WHITE);
+      DrawTextEx(font, filename, {.x = x_pos, .y = y_pos}, 20, 1, WHITE);
       file_name_pos.push_back(Vector3{.x = x_pos, .y = y_pos, .z = static_cast<float>(i)});
    }
 }
 
-//DRAWING / RENDERING STUFF TO THE SCREEN
+// DRAWING / RENDERING STUFF TO THE SCREEN
 void UI::render_ui_areas()
 {
-   //files overview rect
-   // DrawRectangleRec(fs_rect, GetColor(0x303030FF));
+   // files overview rect
+   //  DrawRectangleRec(fs_rect, GetColor(0x303030FF));
    DrawRectangleLinesEx(fs_rect, 3, default_border_color);
 
    // composite signal rect
@@ -98,62 +107,57 @@ void UI::update_screen_size()
    }
 }
 
-void UI::render_axis()
+void UI::render_axis() const
 {
    DrawLineEx(Vector2{
                  .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
-                 .y = fs_rect.y
+                 .y = fs_rect.y + screen.w_padding
               },
               Vector2{
                  .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
                  .y = fs_rect.y + fs_rect.height - screen.w_padding
-              },
-              3,
-              default_border_color
-   );
+              }, 3, RAYWHITE);
 
    DrawLineEx(Vector2{
                  .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
-                 .y = fs_rect.y + fs_rect.height - screen.w_padding
+                 .y = fs_rect.y + fs_rect.height - screen.w_padding * 5
               },
               Vector2{
-                 .x = (screen.width - screen.w_padding),
-                 .y = fs_rect.y + fs_rect.height - screen.w_padding
-              },
-              3,
-              default_border_color
-   );
+                 .x = (screen.width - screen.w_padding * 2), .y = fs_rect.y + fs_rect.height - screen.w_padding * 2
+              }, 3, RAYWHITE);
 }
-
 
 void UI::render()
 {
    ClearBackground(default_bg_color);
    update_screen_size();
    render_ui_areas();
-   //render_axis();
+   // render_axis();
    render_audio_file_names();
 }
+
 
 // USER INTERACTION:
 void UI::filename_pressed(const Vector2& mouse_pos)
 {
    for (int i = 0; i < fm.get_files().size(); ++i)
    {
-      // Store the filename in a string (safer than using c_str() directly)
       std::string filename = fm.get_files()[i].path().filename().generic_string();
-      Vector2 text_size = MeasureTextEx(GetFontDefault(), filename.c_str(), 20, 1);
+      Vector2 text_size = MeasureTextEx(font, filename.c_str(), 20, 1);
       Rectangle text_bounding_box = {file_name_pos[i].x, file_name_pos[i].y, text_size.x, text_size.y};
 
       if (CheckCollisionPointRec(mouse_pos, text_bounding_box))
       {
-         DrawText(filename.c_str(), file_name_pos[i].x, file_name_pos[i].y, 20, GREEN);
+         DrawTextEx(font, filename.c_str(), {.x = file_name_pos[i].x, .y = file_name_pos[i].y}, 20, 1, GREEN);
 
-         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+         // Only trigger on the first detection of a button press
+         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !has_clicked)
          {
             std::cout << filename << "\n";
+            has_clicked = true;
+            return; // Exit function after detecting a click
          }
-         return; // Exit once the file is clicked
+         has_clicked = false;
       }
    }
 }
@@ -163,7 +167,8 @@ void UI::reload_file_names()
    if (GuiButton(Rectangle{
                     .x = fs_rect.x + fs_rect.width - screen.w_padding * 2, .y = fs_rect.y + screen.w_padding,
                     .width = 20, .height = 20
-                 }, "R"))
+                 },
+                 "R"))
    {
       fm.load_audio_files();
    }
