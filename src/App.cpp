@@ -3,7 +3,7 @@
 
 
 App::App(const char* title)
-   : wav("100.wav"), ui()
+   : wav("Asine.wav"), ui()
 {
    InitWindow(ui.screen.width, ui.screen.height, title);
    ui.load_font("jbMono.ttf");
@@ -16,16 +16,12 @@ App::App(const char* title)
 // Implement the game_loop function
 void App::game_loop()
 {
-   float sliderValue = 50.0f;
-
    while (!WindowShouldClose())
    {
       BeginDrawing();
       ui.render();
-      ui.event_handler();
-      ui.event_handler();
-      ui.plot_signal(wav.get_signal());
-
+      ui.event_handler(wav);
+      ui.plotting(wav.get_signal());
       EndDrawing();
    }
 

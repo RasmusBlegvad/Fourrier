@@ -6,10 +6,9 @@
 #include <span>
 
 // constructor
-Wav::Wav(std::string file_name)
+Wav::Wav(const std::string& file_name)
    : current_loaded_signal(extract_signal(file_name))
 {
-
 }
 
 std::unordered_map<std::string, long long> Wav::create_lookup(const std::string& file_path)

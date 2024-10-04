@@ -158,7 +158,7 @@ void UI::render()
 
 
 // USER INTERACTION:
-void UI::filename_pressed(const Vector2& mouse_pos)
+void UI::filename_pressed(const Vector2& mouse_pos, Wav& wav)
 {
    for (int i = 0; i < fm.get_files().size(); ++i)
    {
@@ -173,6 +173,7 @@ void UI::filename_pressed(const Vector2& mouse_pos)
          // Only trigger on the first detection of a button press
          if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !has_clicked)
          {
+            wav.set_signal(wav.extract_signal(filename));
             has_clicked = true;
             return;
          }
@@ -193,10 +194,10 @@ void UI::reload_file_names()
    }
 }
 
-void UI::event_handler()
+void UI::event_handler(Wav& wav)
 {
-   Vector2 mouse_pos = GetMousePosition();
-   filename_pressed(mouse_pos);
+   const Vector2 mouse_pos = GetMousePosition();
+   filename_pressed(mouse_pos, wav);
    reload_file_names();
 }
 
@@ -222,15 +223,17 @@ void UI::plot_signal(const Wav::Signal& sig) const
    // scaling the values so that the largest value in the signal will fir onside our plotting window
    const double y_scale = comp_plotting_rect.height / 2.0 / largest_val;
 
-   // here we are scaling the x-axis this will most of the time mean that samples are plotted on the same pixel as we 9/10 times
-   // have more samples than pixels to work with (essentially we are skipping sampels / maybe we should do something like a moving average instead))
+   const int step_size = samples.size() / comp_plotting_rect.width;
 
-   const double x_scale = comp_plotting_rect.width / static_cast<double>(samples.size());
-
-   for (size_t i = 0; i < samples.size(); ++i)
+   for (int i = 0; i < comp_plotting_rect.width; i++)
    {
-      float x_pos = comp_plotting_rect.x + i * x_scale;
-      float y_pos = comp_plotting_rect.y + comp_plotting_rect.height / 2 - samples[i] * y_scale;
-      DrawCircle(x_pos, y_pos, 1, RED);
+      float y_pos = comp_plotting_rect.y + comp_plotting_rect.height / 2 - samples[i * step_size] * y_scale;
+      DrawCircle(comp_plotting_rect.x + i, y_pos, 1, RED);
    }
 }
+
+void UI::plotting(const Wav::Signal& sig) const
+{
+   plot_signal(sig);
+}
+

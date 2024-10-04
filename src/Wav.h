@@ -8,7 +8,7 @@
 class Wav
 {
 public:
-   explicit Wav(std::string file_name);
+   explicit Wav(const std::string& file_name);
 
    struct Signal
    {
@@ -31,7 +31,7 @@ public:
 
       // constructor for Frequency signal
       Signal(const std::vector<std::complex<double>>& freq_samples, uint32_t sr)
-         : samples(freq_samples), samplerate(sr), domain(Domain::Frequency)
+         : domain(Domain::Frequency), samples(freq_samples), samplerate(sr)
       {
       }
    };
