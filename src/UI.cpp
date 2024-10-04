@@ -1,10 +1,11 @@
 #include "UI.h"
 #include <iostream>
 #define RAYGUI_IMPLEMENTATION
+#include <algorithm>
 #include <raygui.h>
 
 UI::Screen::Screen(int w, int h, int fps)
-   : width(w), height(h),fps(fps),  w_padding(w * 0.01f), h_padding(h * 0.01f)
+   : width(w), height(h), fps(fps), w_padding(w * 0.01f), h_padding(h * 0.01f)
 {
 }
 
@@ -20,24 +21,33 @@ UI::UI(const Screen& screen, Color bgColor, Color border_color)
 void UI::define_ui_rectangles()
 {
    fs_rect = {
-      .x = screen.w_padding,
+      .x = screen.h_padding,
       .y = screen.h_padding,
-      .width = screen.width / 6,
-      .height = screen.height / 2 + 2 * screen.w_padding
+      .width = screen.width / 7,
+      .height = screen.height / 2 + 2 * screen.h_padding
    };
    comp_sig_rect =
    {
-      .x = screen.w_padding + screen.width / 6 + screen.h_padding,
+      .x = fs_rect.x + fs_rect.width + screen.h_padding,
       .y = screen.h_padding,
-      .width = screen.width - screen.w_padding * 2 - (screen.width / 6 + screen.h_padding),
-      .height = screen.height / 2 + 2 * screen.w_padding
+      .width = screen.width - screen.h_padding * 3 - fs_rect.width,
+      .height = screen.height / 2 + 2 * screen.h_padding
    };
 
    part_sig_rect = {
-      .x = screen.w_padding,
-      .y = screen.height / 2 + 2 * screen.w_padding + screen.h_padding * 2,
-      .width = screen.width - screen.w_padding * 2.0f,
-      .height = screen.height - (3 * screen.h_padding + screen.height / 2 + 2 * screen.w_padding)
+      .x = screen.h_padding,
+      .y = screen.height / 2 + 2 * screen.h_padding + screen.h_padding * 2,
+      .width = screen.width - screen.h_padding * 2.0f,
+      .height = screen.height - (3 * screen.h_padding + screen.height / 2 + 2 * screen.h_padding)
+   };
+
+   float padding = comp_sig_rect.width * 0.02f;
+
+   comp_plotting_rect = {
+      comp_sig_rect.x + padding,
+      comp_sig_rect.y + padding,
+      comp_sig_rect.width - 2 * padding,
+      comp_sig_rect.height - 2 * padding
    };
 
    devider_start_pos = {
@@ -109,22 +119,32 @@ void UI::update_screen_size()
 
 void UI::render_axis() const
 {
-   DrawLineEx(Vector2{
-                 .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
-                 .y = fs_rect.y + screen.w_padding
-              },
-              Vector2{
-                 .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
-                 .y = fs_rect.y + fs_rect.height - screen.w_padding
-              }, 3, RAYWHITE);
+   // x-axis
+   DrawLine(comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height,
+            comp_plotting_rect.x + comp_plotting_rect.width, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
 
-   DrawLineEx(Vector2{
-                 .x = fs_rect.x + fs_rect.width + screen.w_padding * 2,
-                 .y = fs_rect.y + fs_rect.height - screen.w_padding * 5
-              },
-              Vector2{
-                 .x = (screen.width - screen.w_padding * 2), .y = fs_rect.y + fs_rect.height - screen.w_padding * 2
-              }, 3, RAYWHITE);
+   // y-axis
+   DrawLine(comp_plotting_rect.x, comp_plotting_rect.y,
+            comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
+
+   const int dotted_line_len = 8;
+   const int dotted_line_gap = 8;
+   const int rect_border_width = 5;
+
+   int total_step_size = dotted_line_len + dotted_line_gap;
+   int num_lines = comp_plotting_rect.width / total_step_size;
+
+   //TODO: refine at some point so that line len is a fraction of the drawable width
+
+   for (int i = 0; i < num_lines; ++i)
+   {
+      int step_size = i * total_step_size;
+      DrawLine((comp_plotting_rect.x + rect_border_width) + step_size,
+               comp_plotting_rect.y + comp_plotting_rect.height / 2,
+               (comp_plotting_rect.x + rect_border_width) + step_size + dotted_line_len,
+               comp_plotting_rect.y + comp_plotting_rect.height / 2,
+               WHITE);
+   }
 }
 
 void UI::render()
@@ -132,7 +152,7 @@ void UI::render()
    ClearBackground(default_bg_color);
    update_screen_size();
    render_ui_areas();
-   // render_axis();
+   render_axis();
    render_audio_file_names();
 }
 
@@ -153,9 +173,8 @@ void UI::filename_pressed(const Vector2& mouse_pos)
          // Only trigger on the first detection of a button press
          if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !has_clicked)
          {
-            std::cout << filename << "\n";
             has_clicked = true;
-            return; // Exit function after detecting a click
+            return;
          }
          has_clicked = false;
       }
@@ -181,40 +200,37 @@ void UI::event_handler()
    reload_file_names();
 }
 
-void UI::plot_signal(const Screen& screen, const Wav::Signal& signal)
+void UI::plot_signal(const Wav::Signal& sig) const
 {
-   const int drawable_width = comp_sig_rect.width;
-   const int drawable_height = comp_sig_rect.height;
-   const int dotted_line_len = 8;
-   const int dotted_line_gap = 8;
-   const int rect_border_width = 5;
-
-   int total_step_size = dotted_line_len + dotted_line_gap;
-   int num_lines = drawable_width / total_step_size;
-
-   //TODO: refine at some point so that line len is a fraction of the drawable area
-
-   for (int i = 0; i < num_lines; ++i)
+   // Resize samples to the correct size and populate it
+   std::vector<double> samples(sig.samples.size());
+   for (size_t i = 0; i < sig.samples.size(); ++i)
    {
-      int step_size = i * total_step_size;
-      DrawLine((comp_sig_rect.x + rect_border_width) + step_size,
-               comp_sig_rect.y + drawable_height / 2,
-               (comp_sig_rect.x + rect_border_width) + step_size + dotted_line_len,
-               comp_sig_rect.y + drawable_height / 2,
-               WHITE);
+      samples[i] = sig.samples[i].real();
    }
 
-   // if(signal.domain == Wav::Signal::Domain::Time)
-   // {
-   //    // plotting center line:
-   // }
-   // else
-   // {
-   //    // freq axis
-   // }
+   // max_element normally just use the < operator to check for the largest value
+   // as we will sometimes run into situations where the abs value of a negative sample is bigger
+   // then the largest posetive value max_elemts can take a lambda as a third argument which determines
+   // how it does comparrison between elemts in the array. this lambde is basically doing the same
+   // as max_elemt normally does except were are taking the absolute value of the elements which are compared to each other)
+   const double largest_val = *std::ranges::max_element(samples.begin(), samples.end(),
+                                                        [](const double a, const double b)
+                                                        {
+                                                           return std::abs(a) < std::abs(b);
+                                                        });
+   // scaling the values so that the largest value in the signal will fir onside our plotting window
+   const double y_scale = comp_plotting_rect.height / 2.0 / largest_val;
 
+   // here we are scaling the x-axis this will most of the time mean that samples are plotted on the same pixel as we 9/10 times
+   // have more samples than pixels to work with (essentially we are skipping sampels / maybe we should do something like a moving average instead))
 
+   const double x_scale = comp_plotting_rect.width / static_cast<double>(samples.size());
 
-
+   for (size_t i = 0; i < samples.size(); ++i)
+   {
+      float x_pos = comp_plotting_rect.x + i * x_scale;
+      float y_pos = comp_plotting_rect.y + comp_plotting_rect.height / 2 - samples[i] * y_scale;
+      DrawCircle(x_pos, y_pos, 1, RED);
+   }
 }
-

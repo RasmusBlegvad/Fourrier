@@ -15,7 +15,7 @@ public:
       float w_padding;
       float h_padding;
 
-      explicit Screen(int w = 8.0f * 132.0f, int h = 8.0f * 100.0f,
+      explicit Screen(int w = 8.0f * 300.0f, int h = 8.0f * 160.0f,
                       int fps = 60);
    };
 
@@ -43,7 +43,7 @@ public:
    //___________________________________________________________________________________________________________________
 
    // PLOTTING__________________________________________________________________________________________________________
-   void plot_signal(const Screen& screen, const Wav::Signal& signal);
+   void plot_signal(const Wav::Signal& sig) const;
    //___________________________________________________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ private:
    Rectangle fs_rect{};
    Rectangle comp_sig_rect{};
    Rectangle part_sig_rect{};
+   Rectangle comp_plotting_rect{};
    Vector2 devider_start_pos{};
    Vector2 devider_end_pos{};
 

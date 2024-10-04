@@ -3,7 +3,7 @@
 
 
 App::App(const char* title)
-   : wav("audio7.wav"), ui()
+   : wav("100.wav"), ui()
 {
    InitWindow(ui.screen.width, ui.screen.height, title);
    ui.load_font("jbMono.ttf");
@@ -24,7 +24,7 @@ void App::game_loop()
       ui.render();
       ui.event_handler();
       ui.event_handler();
-      ui.plot_signal(ui.screen,wav.get_signal());
+      ui.plot_signal(wav.get_signal());
 
       EndDrawing();
    }
