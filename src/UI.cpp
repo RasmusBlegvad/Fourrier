@@ -4,7 +4,7 @@
 #include <raygui.h>
 
 UI::Screen::Screen(int w, int h, int fps)
-   : width(w), height(h), h_padding(h * 0.01f), w_padding(w * 0.01f), fps(fps)
+   : width(w), height(h),fps(fps),  w_padding(w * 0.01f), h_padding(h * 0.01f)
 {
 }
 
@@ -180,3 +180,41 @@ void UI::event_handler()
    filename_pressed(mouse_pos);
    reload_file_names();
 }
+
+void UI::plot_signal(const Screen& screen, const Wav::Signal& signal)
+{
+   const int drawable_width = comp_sig_rect.width;
+   const int drawable_height = comp_sig_rect.height;
+   const int dotted_line_len = 8;
+   const int dotted_line_gap = 8;
+   const int rect_border_width = 5;
+
+   int total_step_size = dotted_line_len + dotted_line_gap;
+   int num_lines = drawable_width / total_step_size;
+
+   //TODO: refine at some point so that line len is a fraction of the drawable area
+
+   for (int i = 0; i < num_lines; ++i)
+   {
+      int step_size = i * total_step_size;
+      DrawLine((comp_sig_rect.x + rect_border_width) + step_size,
+               comp_sig_rect.y + drawable_height / 2,
+               (comp_sig_rect.x + rect_border_width) + step_size + dotted_line_len,
+               comp_sig_rect.y + drawable_height / 2,
+               WHITE);
+   }
+
+   // if(signal.domain == Wav::Signal::Domain::Time)
+   // {
+   //    // plotting center line:
+   // }
+   // else
+   // {
+   //    // freq axis
+   // }
+
+
+
+
+}
+

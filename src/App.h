@@ -6,7 +6,7 @@
 class App
 {
 public:
-   explicit App(const char* title = "Fourrie");
+   explicit App(const char* title = "Terrible App");
 
 private:
    Wav wav;

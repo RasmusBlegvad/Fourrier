@@ -2,6 +2,7 @@
 #include <vector>
 #include "raylib.h"
 #include "FileManager.h"
+#include "Wav.h"
 
 class UI
 {
@@ -14,7 +15,7 @@ public:
       float w_padding;
       float h_padding;
 
-      explicit Screen(int w = 8.0f * 200.0f, int h = 8.0f * 120.0f,
+      explicit Screen(int w = 8.0f * 132.0f, int h = 8.0f * 100.0f,
                       int fps = 60);
    };
 
@@ -41,6 +42,11 @@ public:
    void event_handler();
    //___________________________________________________________________________________________________________________
 
+   // PLOTTING__________________________________________________________________________________________________________
+   void plot_signal(const Screen& screen, const Wav::Signal& signal);
+   //___________________________________________________________________________________________________________________
+
+
    Screen screen;
 
 private:
@@ -59,5 +65,6 @@ private:
 
    FileManager fm;
 
+   // for debouncing buttons:
    bool has_clicked;
 };

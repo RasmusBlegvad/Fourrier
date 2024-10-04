@@ -8,7 +8,7 @@ App::App(const char* title)
    InitWindow(ui.screen.width, ui.screen.height, title);
    ui.load_font("jbMono.ttf");
    SetTargetFPS(ui.screen.fps);
-   SetWindowMonitor(0);
+   SetWindowMonitor(1);
    SetWindowState(FLAG_WINDOW_RESIZABLE);
    game_loop();
 }
@@ -24,6 +24,7 @@ void App::game_loop()
       ui.render();
       ui.event_handler();
       ui.event_handler();
+      ui.plot_signal(ui.screen,wav.get_signal());
 
       EndDrawing();
    }
