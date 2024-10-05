@@ -10,6 +10,7 @@ App::App(const char* title)
    SetTargetFPS(ui.screen.fps);
    SetWindowMonitor(1);
    SetWindowState(FLAG_WINDOW_RESIZABLE);
+   SetWindowState(FLAG_WINDOW_MAXIMIZED);
    game_loop();
 }
 
@@ -22,6 +23,7 @@ void App::game_loop()
       ui.render();
       ui.event_handler(wav);
       ui.plotting(wav.get_signal());
+      ui.rect_test();
       EndDrawing();
    }
 

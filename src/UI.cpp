@@ -11,7 +11,7 @@ UI::Screen::Screen(int w, int h, int fps)
 
 UI::UI(const Screen& screen, Color bgColor, Color border_color)
    : screen(screen), default_bg_color(bgColor), default_border_color(border_color),
-     fm(), has_clicked(false)
+     fm()
 
 {
    define_ui_rectangles();
@@ -136,6 +136,7 @@ void UI::render_axis() const
 
    //TODO: refine at some point so that line len is a fraction of the drawable width
 
+   // dotted center line
    for (int i = 0; i < num_lines; ++i)
    {
       int step_size = i * total_step_size;
@@ -160,6 +161,7 @@ void UI::render()
 // USER INTERACTION:
 void UI::filename_pressed(const Vector2& mouse_pos, Wav& wav)
 {
+   static bool has_clicked;
    for (int i = 0; i < fm.get_files().size(); ++i)
    {
       std::string filename = fm.get_files()[i].path().filename().generic_string();
@@ -210,11 +212,7 @@ void UI::plot_signal(const Wav::Signal& sig) const
       samples[i] = sig.samples[i].real();
    }
 
-   // max_element normally just use the < operator to check for the largest value
-   // as we will sometimes run into situations where the abs value of a negative sample is bigger
-   // then the largest posetive value max_elemts can take a lambda as a third argument which determines
-   // how it does comparrison between elemts in the array. this lambde is basically doing the same
-   // as max_elemt normally does except were are taking the absolute value of the elements which are compared to each other)
+   // labda comparing absolute values
    const double largest_val = *std::ranges::max_element(samples.begin(), samples.end(),
                                                         [](const double a, const double b)
                                                         {
@@ -236,4 +234,43 @@ void UI::plotting(const Wav::Signal& sig) const
 {
    plot_signal(sig);
 }
+
+void UI::rect_test()
+{
+   Vector2 mouse_pos = GetMousePosition();
+   static Vector2 mouse_pos_start = {0, 0};
+   static bool is_dragging;
+
+   if (CheckCollisionPointRec(mouse_pos, comp_plotting_rect))
+   {
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+      {
+         mouse_pos_start = mouse_pos;
+         is_dragging = true;
+      }
+   }
+   if (is_dragging)
+   {
+      float rect_x = std::min(mouse_pos_start.x, mouse_pos.x);
+      float rect_y = std::min(mouse_pos_start.y, mouse_pos.y);
+      float rect_width = std::abs(mouse_pos.x - mouse_pos_start.x);
+      float rect_height = std::abs(mouse_pos.y - mouse_pos_start.y);
+
+      rect_x = std::max(rect_x, comp_plotting_rect.x);
+      rect_y = std::max(rect_y, comp_plotting_rect.y);
+      rect_width = std::min(rect_width, comp_plotting_rect.x + comp_plotting_rect.width - rect_x);
+      rect_height = std::min(rect_height, comp_plotting_rect.y + comp_plotting_rect.height - rect_y);
+
+      DrawRectangleLines(rect_x, rect_y, rect_width, rect_height, RED);
+   }
+
+   if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+   {
+      is_dragging = false;
+
+      std::cout << "mouse start position [" << mouse_pos_start.x << ", " << mouse_pos_start.y << "]" << "\n"
+         << "mouse end position [" << mouse_pos.x << ", " << mouse_pos.y << "]" << std::endl;
+   }
+}
+
 

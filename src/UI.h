@@ -45,6 +45,7 @@ public:
    // PLOTTING__________________________________________________________________________________________________________
    void plot_signal(const Wav::Signal& sig) const;
    void plotting(const Wav::Signal& sig) const;
+   void rect_test();
    //___________________________________________________________________________________________________________________
 
 
@@ -68,5 +69,4 @@ private:
    FileManager fm;
 
    // for debouncing buttons:
-   bool has_clicked;
 };
