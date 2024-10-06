@@ -197,15 +197,12 @@ Wav::Signal Wav::extract_signal(const std::string& file_path)
 
 Wav::Signal& Wav::get_signal()
 {
-      return current_loaded_signal;
-   }
+   return current_loaded_signal;
+}
 
 void Wav::set_signal(const Signal& sig)
 {
    current_loaded_signal = sig;
 }
 
-void Wav::print() const
-{
-   std::cout << current_loaded_signal.samples.size();
-}
+

@@ -29,7 +29,7 @@ public:
 
    // DRAWING / RENDERING STUFF TO THE SCREEN____________________________________________________________________________
    void render_audio_file_names();
-   void render_ui_areas();
+   void render_ui_areas() const;
    void render_axis() const;
    void update_screen_size();
    void render();
@@ -45,7 +45,7 @@ public:
    // PLOTTING__________________________________________________________________________________________________________
    void plot_signal(const Wav::Signal& sig) const;
    void plotting(const Wav::Signal& sig) const;
-   void rect_test();
+   void graph_zoom() const;
    //___________________________________________________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ private:
    Rectangle comp_plotting_rect{};
    Vector2 devider_start_pos{};
    Vector2 devider_end_pos{};
+   Rectangle graph_display_window{};
 
    Font font{};
 

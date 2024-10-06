@@ -34,6 +34,12 @@ public:
          : domain(Domain::Frequency), samples(freq_samples), samplerate(sr)
       {
       }
+
+      // constructor for empty
+      explicit Signal()
+         : samples(0), samplerate(0)
+      {
+      }
    };
 
    enum compression_formats
@@ -50,7 +56,7 @@ public:
 
    Signal& get_signal();
    void set_signal(const Signal& sig);
-   void print() const;
+   void set_zoomed_signal();
 
 private:
    Signal current_loaded_signal;

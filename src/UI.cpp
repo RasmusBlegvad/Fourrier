@@ -59,6 +59,8 @@ void UI::define_ui_rectangles()
       .x = part_sig_rect.x + fs_rect.width,
       .y = part_sig_rect.y + part_sig_rect.height,
    };
+
+   graph_display_window = comp_plotting_rect;
 }
 
 void UI::load_font(const std::string& file_name)
@@ -85,7 +87,7 @@ void UI::render_audio_file_names()
 }
 
 // DRAWING / RENDERING STUFF TO THE SCREEN
-void UI::render_ui_areas()
+void UI::render_ui_areas() const
 {
    // files overview rect
    //  DrawRectangleRec(fs_rect, GetColor(0x303030FF));
@@ -127,12 +129,12 @@ void UI::render_axis() const
    DrawLine(comp_plotting_rect.x, comp_plotting_rect.y,
             comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
 
-   const int dotted_line_len = 8;
-   const int dotted_line_gap = 8;
-   const int rect_border_width = 5;
+   constexpr int dotted_line_len = 8;
+   constexpr int dotted_line_gap = 8;
+   constexpr int rect_border_width = 5;
 
-   int total_step_size = dotted_line_len + dotted_line_gap;
-   int num_lines = comp_plotting_rect.width / total_step_size;
+   constexpr int total_step_size = dotted_line_len + dotted_line_gap;
+   const int num_lines = comp_plotting_rect.width / total_step_size;
 
    //TODO: refine at some point so that line len is a fraction of the drawable width
 
@@ -223,6 +225,7 @@ void UI::plot_signal(const Wav::Signal& sig) const
 
    const int step_size = samples.size() / comp_plotting_rect.width;
 
+
    for (int i = 0; i < comp_plotting_rect.width; i++)
    {
       float y_pos = comp_plotting_rect.y + comp_plotting_rect.height / 2 - samples[i * step_size] * y_scale;
@@ -235,7 +238,7 @@ void UI::plotting(const Wav::Signal& sig) const
    plot_signal(sig);
 }
 
-void UI::rect_test()
+void UI::graph_zoom() const
 {
    Vector2 mouse_pos = GetMousePosition();
    static Vector2 mouse_pos_start = {0, 0};

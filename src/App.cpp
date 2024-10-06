@@ -23,7 +23,7 @@ void App::game_loop()
       ui.render();
       ui.event_handler(wav);
       ui.plotting(wav.get_signal());
-      ui.rect_test();
+      ui.graph_zoom();
       EndDrawing();
    }
 
