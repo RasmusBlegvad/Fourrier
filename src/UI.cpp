@@ -101,6 +101,8 @@ void UI::render_ui_areas() const
    static float amp_slider_val = 50.0f;
    const float option_element_spacing = part_sig_options_rec.height / 15;
    GuiDrawRectangle(part_sig_options_rec, 3, border_color, UI_rect_bg);
+
+   // TODO: implement a guistyle setup function
    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x252525FF);
    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x454545FF);
    GuiSetStyle(DEFAULT, BORDER_COLOR_FOCUSED, 0x454545FF);
@@ -116,7 +118,7 @@ void UI::render_ui_areas() const
                 .width = part_sig_options_rec.width - part_sig_options_rec.width / 3,
                 .height = part_sig_options_rec.height / 30
              },
-             "Frequency", TextFormat("%i", static_cast<int>(freq_slider_val)), &freq_slider_val, 0, 100);
+             "Frequency", TextFormat("%i", static_cast<int>(freq_slider_val)), &freq_slider_val, 0, 500);
 
    // amp slider
    GuiSlider({
@@ -125,7 +127,10 @@ void UI::render_ui_areas() const
                 .width = part_sig_options_rec.width - part_sig_options_rec.width / 3,
                 .height = part_sig_options_rec.height / 30
              },
-             "Amplitude", TextFormat("%i", static_cast<int>(amp_slider_val)), &amp_slider_val, 0, 100);
+             "Amplitude", TextFormat("%i", static_cast<int>(amp_slider_val)), &amp_slider_val, 0, 255);
+
+   DrawCircle(part_sig_rect.x + part_sig_rect.width / 2, part_sig_rect.y + part_sig_rect.height / 2, freq_slider_val,
+              {static_cast<unsigned char>(amp_slider_val), 100, 100, 255});
 
    GuiButton({
                 .x = part_sig_options_rec.x + part_sig_options_rec.width / 5,
