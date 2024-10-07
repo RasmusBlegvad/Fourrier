@@ -20,7 +20,7 @@ public:
    };
 
    explicit UI(const Screen& screen = Screen{}, Color bgColor = GetColor(0x181818FF),
-               Color border_color = GetColor(0x505050FF));
+               Color border_color = GetColor(0x454545FF), Color UI_rect_bg = GetColor(0x252525FF));
 
    // UI Setup functions_________________________________________________________________________________________________
    void define_ui_rectangles();
@@ -52,8 +52,10 @@ public:
    Screen screen;
 
 private:
-   Color default_bg_color;
-   Color default_border_color;
+   // COLROS
+   Color bg_color;
+   Color border_color;
+   Color UI_rect_bg;
 
    Rectangle fs_rect{};
    Rectangle comp_sig_rect{};
@@ -62,6 +64,7 @@ private:
    Vector2 devider_start_pos{};
    Vector2 devider_end_pos{};
    Rectangle graph_display_window{};
+   Rectangle part_sig_options_rec;
 
    Font font{};
 

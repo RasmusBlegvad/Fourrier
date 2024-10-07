@@ -9,9 +9,9 @@ UI::Screen::Screen(int w, int h, int fps)
 {
 }
 
-UI::UI(const Screen& screen, Color bgColor, Color border_color)
-   : screen(screen), default_bg_color(bgColor), default_border_color(border_color),
-     fm()
+UI::UI(const Screen& screen, Color bgColor, Color border_color, Color UI_rect_bg)
+   : screen(screen), bg_color(bgColor), border_color(border_color),
+     fm(), UI_rect_bg(UI_rect_bg)
 
 {
    define_ui_rectangles();
@@ -35,11 +35,19 @@ void UI::define_ui_rectangles()
    };
 
    part_sig_rect = {
-      .x = screen.h_padding,
+      .x = comp_sig_rect.x,
       .y = screen.height / 2 + 2 * screen.h_padding + screen.h_padding * 2,
-      .width = screen.width - screen.h_padding * 2.0f,
+      .width = comp_sig_rect.width,
       .height = screen.height - (3 * screen.h_padding + screen.height / 2 + 2 * screen.h_padding)
    };
+
+   part_sig_options_rec = {
+      .x = fs_rect.x,
+      .y = 2 * screen.h_padding + fs_rect.height,
+      .width = fs_rect.width,
+      .height = part_sig_rect.height
+   };
+
 
    float padding = comp_sig_rect.width * 0.02f;
 
@@ -48,16 +56,6 @@ void UI::define_ui_rectangles()
       comp_sig_rect.y + padding,
       comp_sig_rect.width - 2 * padding,
       comp_sig_rect.height - 2 * padding
-   };
-
-   devider_start_pos = {
-      .x = part_sig_rect.x + fs_rect.width,
-      .y = part_sig_rect.y
-   };
-
-   devider_end_pos = {
-      .x = part_sig_rect.x + fs_rect.width,
-      .y = part_sig_rect.y + part_sig_rect.height,
    };
 
    graph_display_window = comp_plotting_rect;
@@ -90,20 +88,61 @@ void UI::render_audio_file_names()
 void UI::render_ui_areas() const
 {
    // files overview rect
-   //  DrawRectangleRec(fs_rect, GetColor(0x303030FF));
-   DrawRectangleLinesEx(fs_rect, 3, default_border_color);
+   GuiDrawRectangle(fs_rect, 3, border_color, UI_rect_bg);
 
    // composite signal rect
-   // DrawRectangleRec(comp_sig_rect, GetColor(0x303030FF));
-   DrawRectangleLinesEx(comp_sig_rect, 3, default_border_color);
+   GuiDrawRectangle(comp_sig_rect, 3, border_color, UI_rect_bg);
 
    // partial signals rect
-   // DrawRectangleRec(part_sig_rect, GetColor(0x303030FF));
-   DrawRectangleLinesEx(part_sig_rect, 3, default_border_color);
+   GuiDrawRectangle(part_sig_rect, 3, border_color, UI_rect_bg);
 
-   // options devider
-   DrawLineEx(devider_start_pos, devider_end_pos, 3, default_border_color);
+   // OPTIONS WINDOW
+   static float freq_slider_val = 50.0f;
+   static float amp_slider_val = 50.0f;
+   const float option_element_spacing = part_sig_options_rec.height / 15;
+   GuiDrawRectangle(part_sig_options_rec, 3, border_color, UI_rect_bg);
+   GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x252525FF);
+   GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x454545FF);
+   GuiSetStyle(DEFAULT, BORDER_COLOR_FOCUSED, 0x454545FF);
+   GuiSetStyle(DEFAULT, LINE_COLOR, 0x454545FF);
+   GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, 0x252525FF);
+   GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
+
+   // freq slider
+   GuiPanel(part_sig_options_rec, "Options");
+   GuiSlider({
+                .x = part_sig_options_rec.x + part_sig_options_rec.width / 5,
+                .y = part_sig_options_rec.y + option_element_spacing,
+                .width = part_sig_options_rec.width - part_sig_options_rec.width / 3,
+                .height = part_sig_options_rec.height / 30
+             },
+             "Frequency", TextFormat("%i", static_cast<int>(freq_slider_val)), &freq_slider_val, 0, 100);
+
+   // amp slider
+   GuiSlider({
+                .x = part_sig_options_rec.x + part_sig_options_rec.width / 5,
+                .y = part_sig_options_rec.y + option_element_spacing * 2,
+                .width = part_sig_options_rec.width - part_sig_options_rec.width / 3,
+                .height = part_sig_options_rec.height / 30
+             },
+             "Amplitude", TextFormat("%i", static_cast<int>(amp_slider_val)), &amp_slider_val, 0, 100);
+
+   GuiButton({
+                .x = part_sig_options_rec.x + part_sig_options_rec.width / 5,
+                .y = part_sig_options_rec.y + option_element_spacing * 3,
+                .width = (part_sig_options_rec.width - part_sig_options_rec.width / 3) / 2 - option_element_spacing / 3,
+                .height = part_sig_options_rec.height / 20
+             }, "#125# +");
+
+   GuiButton({
+                .x = part_sig_options_rec.x + part_sig_options_rec.width / 5 + (part_sig_options_rec.width -
+                   part_sig_options_rec.width / 3) / 2 + option_element_spacing / 3,
+                .y = part_sig_options_rec.y + option_element_spacing * 3,
+                .width = (part_sig_options_rec.width - part_sig_options_rec.width / 3) / 2 - option_element_spacing / 3,
+                .height = part_sig_options_rec.height / 20
+             }, "#125# -");
 }
+
 
 void UI::update_screen_size()
 {
@@ -152,7 +191,7 @@ void UI::render_axis() const
 
 void UI::render()
 {
-   ClearBackground(default_bg_color);
+   ClearBackground(bg_color);
    update_screen_size();
    render_ui_areas();
    render_axis();
@@ -275,5 +314,3 @@ void UI::graph_zoom() const
          << "mouse end position [" << mouse_pos.x << ", " << mouse_pos.y << "]" << std::endl;
    }
 }
-
-
