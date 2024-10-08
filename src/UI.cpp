@@ -70,7 +70,6 @@ void UI::load_font(const std::string& file_name)
 
 void UI::gui_style_setup() const
 {
-    // TODO: implement a guistyle setup function
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x252525FF);
     GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x454545FF);
     GuiSetStyle(DEFAULT, BORDER_COLOR_FOCUSED, 0x454545FF);
