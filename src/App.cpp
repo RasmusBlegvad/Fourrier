@@ -17,6 +17,7 @@ App::App(const char* title)
 // Implement the game_loop function
 void App::game_loop()
 {
+
    while (!WindowShouldClose())
    {
       BeginDrawing();
