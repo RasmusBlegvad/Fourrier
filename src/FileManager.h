@@ -12,10 +12,7 @@ public:
 
    const std::vector<std::filesystem::directory_entry>& get_files() const;
 
-   //TODO future functions
-   // Adding files to directory when dragged and dropped into the app window
-   // deleting files
-
+   void copy_file_to_folder(const std::string& file_path, const std::string& file_name);
 
 private:
    std::vector<std::filesystem::directory_entry> files;

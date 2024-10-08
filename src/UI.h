@@ -25,30 +25,24 @@ public:
    // UI Setup functions_________________________________________________________________________________________________
    void define_ui_rectangles();
    void load_font(const std::string& file_name);
-   void gui_style_setup() const;
+   static void gui_style_setup();
    //___________________________________________________________________________________________________________________
 
-   // DRAWING / RENDERING STUFF TO THE SCREEN____________________________________________________________________________
-   void render_audio_file_names();
    void render_ui_areas() const;
    void render_axis() const;
-   void update_screen_size();
-   void render();
 
-   //___________________________________________________________________________________________________________________
-
-   // USER INTERACTION__________________________________________________________________________________________________
-   void filename_pressed(const Vector2& mouse_pos, Wav& wav);
+   void filename_buttons(Wav& wav) const;
+   void part_sig_options() const;
    void reload_file_names();
-   void event_handler(Wav& wav);
-   //___________________________________________________________________________________________________________________
+   void file_drop();
 
-   // PLOTTING__________________________________________________________________________________________________________
+   void update_screen_size();
+
    void plot_signal(const Wav::Signal& sig) const;
-   void plotting(const Wav::Signal& sig) const;
    void graph_zoom() const;
-   //___________________________________________________________________________________________________________________
 
+   void event_handler(Wav& wav);
+   void render();
 
    Screen screen;
 

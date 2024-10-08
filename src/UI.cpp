@@ -3,6 +3,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include <algorithm>
 #include <raygui.h>
+#include <ranges>
+#include <string>
 
 UI::Screen::Screen(int w, int h, int fps)
     : width(w), height(h), fps(fps), w_padding(w * 0.01f), h_padding(h * 0.01f)
@@ -17,7 +19,7 @@ UI::UI(const Screen& screen, Color bgColor, Color border_color, Color UI_rect_bg
     define_ui_rectangles();
 }
 
-// UI Setup functions
+
 void UI::define_ui_rectangles()
 {
     fs_rect = {
@@ -61,14 +63,14 @@ void UI::define_ui_rectangles()
     graph_display_window = comp_plotting_rect;
 }
 
-
 void UI::load_font(const std::string& file_name)
 {
     const std::string font_path = "../Fonts/" + file_name;
     font = LoadFont(font_path.c_str());
 }
 
-void UI::gui_style_setup() const
+//TODO: do styles for individual gui elements so it doesnt look fucked ty <3
+void UI::gui_style_setup()
 {
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x252525FF);
     GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x454545FF);
@@ -79,23 +81,6 @@ void UI::gui_style_setup() const
 }
 
 
-void UI::render_audio_file_names()
-{
-    file_name_pos.clear();
-    int filename_spacing = fs_rect.height / fm.get_files().size();
-
-    for (int i = 0; i < fm.get_files().size(); ++i)
-    {
-        int spacing = i * filename_spacing;
-        const char* filename = fm.get_files()[i].path().filename().generic_string().c_str();
-        float x_pos = fs_rect.x + screen.h_padding;
-        float y_pos = (fs_rect.y + screen.h_padding) + spacing;
-        DrawTextEx(font, filename, {.x = x_pos, .y = y_pos}, 20, 1, WHITE);
-        file_name_pos.push_back(Vector3{.x = x_pos, .y = y_pos, .z = static_cast<float>(i)});
-    }
-}
-
-// DRAWING / RENDERING STUFF TO THE SCREEN
 void UI::render_ui_areas() const
 {
     gui_style_setup();
@@ -108,13 +93,67 @@ void UI::render_ui_areas() const
 
     // partial signals rect
     GuiDrawRectangle(part_sig_rect, 3, border_color, UI_rect_bg);
+}
 
+void UI::render_axis() const
+{
+    // x-axis
+    DrawLine(comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height,
+             comp_plotting_rect.x + comp_plotting_rect.width, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
+
+    // y-axis
+    DrawLine(comp_plotting_rect.x, comp_plotting_rect.y,
+             comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
+
+    constexpr int dotted_line_len = 8;
+    constexpr int dotted_line_gap = 8;
+    constexpr int rect_border_width = 5;
+
+    constexpr int total_step_size = dotted_line_len + dotted_line_gap;
+    const int num_lines = comp_plotting_rect.width / total_step_size;
+
+    //TODO: refine at some point so that line len is a fraction of the drawable width
+
+    // dotted center line
+    for (int i = 0; i < num_lines; ++i)
+    {
+        int step_size = i * total_step_size;
+        DrawLine((comp_plotting_rect.x + rect_border_width) + step_size,
+                 comp_plotting_rect.y + comp_plotting_rect.height / 2,
+                 (comp_plotting_rect.x + rect_border_width) + step_size + dotted_line_len,
+                 comp_plotting_rect.y + comp_plotting_rect.height / 2,
+                 WHITE);
+    }
+}
+
+void UI::update_screen_size()
+{
+    if (IsWindowResized())
+    {
+        // NEW SCREEN
+        screen.height = GetScreenHeight();
+        screen.width = GetScreenWidth();
+        screen.h_padding = GetScreenHeight() * 0.01f;
+        screen.w_padding = GetScreenWidth() * 0.01f;
+
+        define_ui_rectangles();
+    }
+}
+
+void UI::render()
+{
+    ClearBackground(bg_color);
+    update_screen_size();
+    render_ui_areas();
+    render_axis();
+}
+
+void UI::part_sig_options() const
+{
     // OPTIONS WINDOW
     static float freq_slider_val = 50.0f;
     static float amp_slider_val = 50.0f;
     const float option_element_spacing = part_sig_options_rec.height / 15;
-    GuiDrawRectangle(part_sig_options_rec, 3, border_color, UI_rect_bg);
-
 
     // freq slider
     GuiPanel(part_sig_options_rec, "Options");
@@ -156,84 +195,20 @@ void UI::render_ui_areas() const
               }, "#125# -");
 }
 
-
-void UI::update_screen_size()
+void UI::filename_buttons(Wav& wav) const
 {
-    if (IsWindowResized())
-    {
-        // NEW SCREEN
-        screen.height = GetScreenHeight();
-        screen.width = GetScreenWidth();
-        screen.h_padding = GetScreenHeight() * 0.01f;
-        screen.w_padding = GetScreenWidth() * 0.01f;
+    const int filename_spacing = fs_rect.height / fm.get_files().size();
 
-        define_ui_rectangles();
-    }
-}
-
-void UI::render_axis() const
-{
-    // x-axis
-    DrawLine(comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height,
-             comp_plotting_rect.x + comp_plotting_rect.width, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
-
-    // y-axis
-    DrawLine(comp_plotting_rect.x, comp_plotting_rect.y,
-             comp_plotting_rect.x, comp_plotting_rect.y + comp_plotting_rect.height, WHITE);
-
-    constexpr int dotted_line_len = 8;
-    constexpr int dotted_line_gap = 8;
-    constexpr int rect_border_width = 5;
-
-    constexpr int total_step_size = dotted_line_len + dotted_line_gap;
-    const int num_lines = comp_plotting_rect.width / total_step_size;
-
-    //TODO: refine at some point so that line len is a fraction of the drawable width
-
-    // dotted center line
-    for (int i = 0; i < num_lines; ++i)
-    {
-        int step_size = i * total_step_size;
-        DrawLine((comp_plotting_rect.x + rect_border_width) + step_size,
-                 comp_plotting_rect.y + comp_plotting_rect.height / 2,
-                 (comp_plotting_rect.x + rect_border_width) + step_size + dotted_line_len,
-                 comp_plotting_rect.y + comp_plotting_rect.height / 2,
-                 WHITE);
-    }
-}
-
-void UI::render()
-{
-    ClearBackground(bg_color);
-    update_screen_size();
-    render_ui_areas();
-    render_axis();
-    render_audio_file_names();
-}
-
-
-// USER INTERACTION:
-void UI::filename_pressed(const Vector2& mouse_pos, Wav& wav)
-{
-    static bool has_clicked;
     for (int i = 0; i < fm.get_files().size(); ++i)
     {
-        std::string filename = fm.get_files()[i].path().filename().generic_string();
-        Vector2 text_size = MeasureTextEx(font, filename.c_str(), 20, 1);
-        Rectangle text_bounding_box = {file_name_pos[i].x, file_name_pos[i].y, text_size.x, text_size.y};
+        int spacing = i * filename_spacing;
+        const char* filename = fm.get_files()[i].path().filename().generic_string().c_str();
+        float x_pos = fs_rect.x + screen.h_padding;
+        float y_pos = (fs_rect.y + screen.h_padding) + spacing;
 
-        if (CheckCollisionPointRec(mouse_pos, text_bounding_box))
+        if (GuiLabelButton(Rectangle{.x = x_pos, .y = y_pos, .width = 50, .height = 20}, filename))
         {
-            DrawTextEx(font, filename.c_str(), {.x = file_name_pos[i].x, .y = file_name_pos[i].y}, 20, 1, GREEN);
-
-            // Only trigger on the first detection of a button press
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !has_clicked)
-            {
-                wav.set_signal(wav.extract_signal(filename));
-                has_clicked = true;
-                return;
-            }
-            has_clicked = false;
+            wav.set_signal(wav.extract_signal(filename));
         }
     }
 }
@@ -250,12 +225,48 @@ void UI::reload_file_names()
     }
 }
 
+void UI::file_drop()
+{
+    Vector2 mouse_pos = GetMousePosition();
+
+    if (IsFileDropped() && CheckCollisionPointRec(mouse_pos, fs_rect))
+    {
+        FilePathList files = LoadDroppedFiles();
+
+        const auto file_path = std::string(*files.paths);
+
+        int file_name_start_idx = 0;
+
+        for (int i = file_path.size() - 1; i >= 0; --i)
+        {
+            if (file_path[i] == '\\')
+            {
+                file_name_start_idx = i;
+                break;
+            }
+        }
+        if (file_name_start_idx > 0)
+        {
+            std::string file_name = file_path.substr(file_name_start_idx);
+            fm.copy_file_to_folder(file_path, file_name);
+        }
+
+
+        UnloadDroppedFiles(files);
+        fm.load_audio_files();
+    }
+}
+
+
 void UI::event_handler(Wav& wav)
 {
-    const Vector2 mouse_pos = GetMousePosition();
-    filename_pressed(mouse_pos, wav);
     reload_file_names();
+    filename_buttons(wav);
+    part_sig_options();
+    graph_zoom();
+    file_drop();
 }
+
 
 void UI::plot_signal(const Wav::Signal& sig) const
 {
@@ -283,11 +294,6 @@ void UI::plot_signal(const Wav::Signal& sig) const
         float y_pos = comp_plotting_rect.y + comp_plotting_rect.height / 2 - samples[i * step_size] * y_scale;
         DrawCircle(comp_plotting_rect.x + i, y_pos, 1, RED);
     }
-}
-
-void UI::plotting(const Wav::Signal& sig) const
-{
-    plot_signal(sig);
 }
 
 void UI::graph_zoom() const
@@ -327,3 +333,5 @@ void UI::graph_zoom() const
             << "mouse end position [" << mouse_pos.x << ", " << mouse_pos.y << "]" << std::endl;
     }
 }
+
+
