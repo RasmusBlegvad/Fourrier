@@ -21,8 +21,8 @@ void App::game_loop()
    {
       BeginDrawing();
       ui.render();
-      ui.event_handler(wav);
       ui.plot_signal(wav.get_signal());
+      ui.event_handler(wav);
       EndDrawing();
    }
 

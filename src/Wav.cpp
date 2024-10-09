@@ -11,6 +11,8 @@ Wav::Wav(const std::string& file_name)
 {
 }
 
+// TODO: the lookup might be obsolete and also we open the same file twice which is kinda silly ??
+
 std::unordered_map<std::string, long long> Wav::create_lookup(const std::string& file_path)
 {
    std::ifstream file("../audio files/" + file_path, std::ios::binary);
@@ -40,6 +42,7 @@ std::unordered_map<std::string, long long> Wav::create_lookup(const std::string&
    if (!(riffID == "RIFF" and waveStr == "WAVE"))
    {
       std::cerr << "File is not a wav file" << std::endl;
+      return {};
    }
    // creating map to hold chunk id and chunkoffset
    std::unordered_map<std::string, long long> chunkLookup = {{riffID, 0}};
@@ -142,6 +145,12 @@ Wav::Signal Wav::extract_signal(const std::string& file_path)
    }
 
    const auto look_up = create_lookup(file_path);
+   if (look_up.empty())
+   {
+      std::cerr << "look up was empty\n";
+      return Signal();
+   }
+
    file.seekg(look_up.at("fmt ") + 8);
 
    uint16_t format_code;

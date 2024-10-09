@@ -24,7 +24,7 @@ const std::vector<std::filesystem::directory_entry>& FileManager::get_files() co
 void FileManager::copy_file_to_folder(const std::string& file_path, const std::string& file_name)
 {
    const std::filesystem::path audio_files =
-      "C:/Users/Schaldemose/Desktop/Coding/C and C++/forrierVisualizer/audio files/" + file_name;
+      "../audio files/" + file_name;
    try
    {
       copy_file(

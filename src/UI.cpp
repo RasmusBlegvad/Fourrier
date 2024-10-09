@@ -197,21 +197,42 @@ void UI::part_sig_options() const
 
 void UI::filename_buttons(Wav& wav) const
 {
-    const int filename_spacing = fs_rect.height / fm.get_files().size();
+    const int filename_spacing = static_cast<int>(fs_rect.height) / static_cast<int>(fm.get_files().size());
+    static bool show_err = false;
 
     for (int i = 0; i < fm.get_files().size(); ++i)
     {
-        int spacing = i * filename_spacing;
+        const int spacing = i * filename_spacing;
         const char* filename = fm.get_files()[i].path().filename().generic_string().c_str();
-        float x_pos = fs_rect.x + screen.h_padding;
-        float y_pos = (fs_rect.y + screen.h_padding) + spacing;
+        const float x_pos = fs_rect.x + screen.h_padding;
+        const float y_pos = fs_rect.y + screen.h_padding + static_cast<float>(spacing);
 
         if (GuiLabelButton(Rectangle{.x = x_pos, .y = y_pos, .width = 50, .height = 20}, filename))
         {
-            wav.set_signal(wav.extract_signal(filename));
+            Wav::Signal sig = wav.extract_signal(filename);
+            if (!sig.samples.empty() && sig.samplerate != 0)
+            {
+                wav.set_signal(sig);
+                return;
+            }
+            show_err = true;
+        }
+
+        if (show_err)
+        {
+            const Rectangle msg_box_rect = {
+                screen.width / 2 - screen.width / 16, screen.height / 2 - screen.height / 16, screen.width / 8,
+                screen.height / 8
+            };
+
+            if (GuiMessageBox(msg_box_rect, "Warning!", "not a wav file", "okay") == 1)
+            {
+                show_err = false;
+            }
         }
     }
 }
+
 
 void UI::reload_file_names()
 {
