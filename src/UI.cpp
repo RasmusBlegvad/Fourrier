@@ -72,12 +72,37 @@ void UI::load_font(const std::string& file_name)
 //TODO: do styles for individual gui elements so it doesnt look fucked ty <3
 void UI::gui_style_setup()
 {
-    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x252525FF);
-    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x454545FF);
-    GuiSetStyle(DEFAULT, BORDER_COLOR_FOCUSED, 0x454545FF);
-    GuiSetStyle(DEFAULT, LINE_COLOR, 0x454545FF);
+    // sliders
+    //TODO: look more into slider knob color
+    GuiSetStyle(SLIDER, BASE_COLOR_NORMAL, 0x252525FF);
+    GuiSetStyle(SLIDER, BASE_COLOR_FOCUSED, 0x252525FF);
+
+    GuiSetStyle(SLIDER, TEXT_COLOR_NORMAL, 0x909090FF);
+    GuiSetStyle(SLIDER, TEXT_COLOR_FOCUSED, 0x909090FF);
+    GuiSetStyle(SLIDER, TEXT_COLOR_PRESSED, 0x909090FF);
+
+    GuiSetStyle(SLIDER, BORDER_COLOR_NORMAL, 0x606060FF);
+    GuiSetStyle(SLIDER, BORDER_COLOR_FOCUSED, 0x909090FF);
+    GuiSetStyle(SLIDER, BORDER_COLOR_PRESSED, 0x909090FF);
+
+    // buttons
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, 0x252525FF);
+    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, 0x252525FF);
+    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, 0x606060FF);
+
+    GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x909090FF);
+    GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, 0x909090FF);
+    GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, 0x909090FF);
+
+    GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, 0x606060FF);
+    GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, 0x909090FF);
+    GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, 0x909090FF);
+
+
+    // panels (containers ???)
     GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, 0x252525FF);
-    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x252525FF);
+    GuiSetStyle(DEFAULT, LINE_COLOR, 0x252525FF);
 }
 
 

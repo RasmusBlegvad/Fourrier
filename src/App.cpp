@@ -10,7 +10,7 @@ App::App(const char* title)
    SetTargetFPS(ui.screen.fps);
    SetWindowMonitor(1);
    SetWindowState(FLAG_WINDOW_RESIZABLE);
-   // SetWindowState(FLAG_WINDOW_MAXIMIZED);
+   SetWindowState(FLAG_WINDOW_MAXIMIZED);
    game_loop();
 }
 
